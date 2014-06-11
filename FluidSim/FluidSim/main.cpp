@@ -12,7 +12,8 @@ const float zFar = 1000.f;		// Far plane
 
 GLuint program;					// Shader program
 GLuint vao;						// Vertex array object
-GLuint positionBufferObject;	// VBO with positions
+GLuint vbo;						// Vertex buffer object
+GLuint ibo;						// Index buffer object
 
 GLuint mvpUniform;				// Uniform ID for the MVP matrix;
 glm::mat4 model;				// Matrix that transforms from model space to world space
@@ -23,13 +24,24 @@ glm::mat4 mvp;					// Product of the model, view and projection matrices
 glm::vec3 cameraPosition;		// Position of our camera
 glm::vec3 cameraLookAt;			// Position our camera is looking at
 
-const float vertexPositions[] = {
-	0.75f, 0.75f, 0.0f, 1.0f,
-	0.75f, -0.75f, 0.0f, 1.0f,
-	-0.75f, -0.75f, 0.0f, 1.0f,
-	-0.75f, 0.75f, 0.0f, 1.0f,
-	0.75f, 0.75f, 0.0f, 1.0f,
-	-0.75f, -0.75f, 0.0f, 1.0f
+// Hard code cube model
+const float cubeVertices[] = {
+	-0.5f,	0.5f,	-0.5f,	1.f,	// left top back		0
+	0.5f,	0.5f,	-0.5f,	1.f,	// right top back		1
+	-0.5f,	0.5f,	0.5f,	1.f,	// left top front		2
+	0.5f,	0.5f,	0.5f,	1.f,	// right top front		3
+	-0.5f,	-0.5f,	-0.5f,	1.f,	// left bottom back		4
+	0.5f,	-0.5f,	-0.5f,	1.f,	// right bottom back	5
+	-0.5f,	-0.5f,	0.5f,	1.f,	// left bottom front	6
+	0.5f,	-0.5f,	0.5f,	1.f,	// right bottom front	7
+};
+const GLshort cubeIndices[] = {
+	2, 3, 6,	3, 7, 6,	// Front face
+	0, 4, 5,	1, 0, 5,	// Back face
+	0, 1, 2,	1, 3, 2,	// Top face
+	6, 7, 5,	6, 5, 4,	// Bottom face
+	0, 2, 4,	2, 6, 4,	// Left face
+	3, 1, 5,	3, 5, 7,	// Right face
 };
 
 // Sets some OpenGL states
@@ -57,16 +69,29 @@ void InitProgram() {
 
 // Sets up our vertex buffer
 void InitVertexBuffer() {
-	glGenBuffers(1, &positionBufferObject);
-	glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexPositions), vertexPositions, GL_STATIC_DRAW);
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+	glGenBuffers(1, &ibo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 // Sets up vertex array object
 void InitVAO() {
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
+
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
+
+	glBindVertexArray(0);
 }
 
 // Sets up model, view and projection matrices
@@ -100,18 +125,17 @@ void init() {
 // Renders the scene
 void display() {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glUseProgram(program);
+	glClearDepth(1.f);
 
-	glBindBuffer(GL_ARRAY_BUFFER, positionBufferObject);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
+	glUseProgram(program);
+	glBindVertexArray(vao);
 
 	mvp = projection * view * model;
 	glUniformMatrix4fv(mvpUniform, 1, GL_FALSE, glm::value_ptr(mvp));
 
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
 
-	glDisableVertexAttribArray(0);
+	glBindVertexArray(0);
 	glUseProgram(0);
 
 	glutSwapBuffers();

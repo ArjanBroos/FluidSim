@@ -14,15 +14,31 @@ GLuint program;					// Shader program
 GLuint vao;						// Vertex array object
 GLuint vbo;						// Vertex buffer object
 GLuint ibo;						// Index buffer object
+GLuint nbo;						// Normal buffer object
 
-GLuint mvpUniform;				// Uniform ID for the MVP matrix;
-glm::mat4 model;				// Matrix that transforms from model space to world space
-glm::mat4 view;					// Matrix that transforms from world space to camera space
-glm::mat4 projection;			// Matrix that transforms from camera space to clip space (does perspective projection)
-glm::mat4 mvp;					// Product of the model, view and projection matrices
+GLuint mvpMatrixUniform;		// Uniform ID for the MVP matrix
+GLuint modelViewMatrixUniform;	// Uniform ID for the modelView matrix
+GLuint normalMatrixUniform;		// Uniform ID for the normal matrix
+GLuint viewMatrixUniform;		// Uniform ID for the view matrix
+glm::mat4 modelMatrix;			// Matrix that transforms from model space to world space
+glm::mat4 viewMatrix;			// Matrix that transforms from world space to camera space
+glm::mat4 projectionMatrix;		// Matrix that transforms from camera space to clip space (does perspective projection)
+glm::mat4 mvpMatrix;			// Product of the model, view and projection matrices
+glm::mat4 modelViewMatrix;		// Product of the model and view matrices
+glm::mat4 normalMatrix;			// Matrix used to transform normals
 
 glm::vec3 cameraPosition;		// Position of our camera
 glm::vec3 cameraLookAt;			// Position our camera is looking at
+
+GLuint diffuseUniform;			// Uniform ID for the diffuse color
+GLuint ambientUniform;			// Uniform ID for the ambient color
+GLuint specularUniform;			// Uniform ID for the specular color
+glm::vec4 diffuse;				// Diffuse color to render with
+glm::vec4 ambient;				// Ambient color to render with
+glm::vec4 specular;				// Specular color to render with
+
+GLuint lightDirUniform;			// Uniform ID for the light direction
+glm::vec3 lightDir;				// Direction of the incoming light
 
 // Hard code cube model
 const float cubeVertices[] = {
@@ -42,6 +58,16 @@ const GLshort cubeIndices[] = {
 	6, 7, 5,	6, 5, 4,	// Bottom face
 	0, 2, 4,	2, 6, 4,	// Left face
 	3, 1, 5,	3, 5, 7,	// Right face
+};
+const glm::vec3 cubeNormals[] = {
+	glm::normalize(glm::vec3(-1.f,	1.f,	-1.f)),	// left top back
+	glm::normalize(glm::vec3(1.f,	1.f,	-1.f)),	// right top back
+	glm::normalize(glm::vec3(-1.f,	1.f,	1.f)),	// left top front
+	glm::normalize(glm::vec3(1.f,	1.f,	1.f)),	// right top front
+	glm::normalize(glm::vec3(-1.f,	-1.f,	-1.f)),	// left bottom back
+	glm::normalize(glm::vec3(1.f,	-1.f,	-1.f)),	// right bottom back
+	glm::normalize(glm::vec3(-1.f,	-1.f,	1.f)),	// left bottom front
+	glm::normalize(glm::vec3(1.f,	-1.f,	1.f)),	// right bottom front
 };
 
 // Sets some OpenGL states
@@ -64,20 +90,40 @@ void InitProgram() {
 
 	program = Framework::CreateProgram(shaders);
 
-	mvpUniform = glGetUniformLocation(program, "mvp");
+	modelViewMatrixUniform = glGetUniformLocation(program, "modelViewMatrix");
+	normalMatrixUniform = glGetUniformLocation(program, "normalMatrix");
+	mvpMatrixUniform = glGetUniformLocation(program, "mvpMatrix");
+	viewMatrixUniform = glGetUniformLocation(program, "viewMatrix");
+	diffuseUniform = glGetUniformLocation(program, "diffuseColor");
+	ambientUniform = glGetUniformLocation(program, "ambientColor");
+	specularUniform = glGetUniformLocation(program, "specularColor");
+	lightDirUniform = glGetUniformLocation(program, "lightDir");
+
+	glUseProgram(program);
+	lightDir = glm::normalize(glm::vec3(1.f, -1.f, -2.f));
+	glUniform3f(lightDirUniform, lightDir.x, lightDir.y, lightDir.z);
+	glUseProgram(0);
 }
 
 // Sets up our vertex buffer
 void InitVertexBuffer() {
+	// Vertices
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeVertices), cubeVertices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+	// Indices
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cubeIndices), cubeIndices, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+
+	// Normals
+	glGenBuffers(1, &nbo);
+	glBindBuffer(GL_ARRAY_BUFFER, nbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(cubeNormals), cubeNormals, GL_STATIC_DRAW);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Sets up vertex array object
@@ -91,19 +137,22 @@ void InitVAO() {
 	
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 
+	glBindBuffer(GL_ARRAY_BUFFER, nbo);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
+
 	glBindVertexArray(0);
 }
 
 // Sets up model, view and projection matrices
 void InitMatrices() {
 	glm::vec3 up(0.f, 1.f, 0.f);
-	cameraPosition = glm::vec3(1.f, 1.f, 2.f);
+	cameraPosition = glm::vec3(-1.f, 1.f, 2.f);
 	cameraLookAt = glm::vec3(0.f, 0.f, 0.f);
 
-	model = glm::mat4(1.f);
-	view = glm::lookAt(cameraPosition, cameraLookAt, up);
-	projection = glm::perspective(fovy, (float)windowWidth / (float)windowHeight, zNear, zFar);
-	mvp = projection * view * model;
+	modelMatrix = glm::mat4(1.f);
+	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, up);
+	projectionMatrix = glm::perspective(fovy, (float)windowWidth / (float)windowHeight, zNear, zFar);
 }
 
 // Specify display mode and window size for the framework
@@ -130,8 +179,23 @@ void display() {
 	glUseProgram(program);
 	glBindVertexArray(vao);
 
-	mvp = projection * view * model;
-	glUniformMatrix4fv(mvpUniform, 1, GL_FALSE, glm::value_ptr(mvp));
+	static float r = 0.f;
+	modelMatrix = glm::mat4(1.f);
+	r += 0.01f;
+	modelMatrix = glm::rotate(modelMatrix, r, glm::vec3(1.f, 1.f, 0.f));
+	//model = glm::translate(model, glm::vec3(-1.f, 0.f, 0.f));
+
+	mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+	modelViewMatrix = viewMatrix * modelMatrix;
+	glUniformMatrix4fv(modelViewMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
+	normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
+	glUniformMatrix4fv(normalMatrixUniform, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	glUniform4f(diffuseUniform, 0.f, 0.f, 1.f, 1.f);
+	glUniform4f(ambientUniform, 0.05f, 0.05f, 0.2f, 1.f);
+	glUniform4f(specularUniform, 1.f, 1.f, 1.f, 1.f);
 
 	glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
 
@@ -159,6 +223,6 @@ void keyboard(unsigned char key, int x, int y) {
 void reshape(int width, int height) {
 	windowWidth = width;
 	windowHeight = height;
-	projection = glm::perspective(fovy, (float)width / (float)height, zNear, zFar);
+	projectionMatrix = glm::perspective(fovy, (float)width / (float)height, zNear, zFar);
 	glViewport(0, 0, width, height);
 }

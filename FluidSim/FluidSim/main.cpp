@@ -3,6 +3,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 #include "framework.h"
+#include "fluidsimulator.h"
 
 int windowWidth = 800;			// Width of the window
 int windowHeight = 600;			// Height of the window
@@ -39,6 +40,8 @@ glm::vec4 specular;				// Specular color to render with
 
 GLuint lightDirUniform;			// Uniform ID for the light direction
 glm::vec3 lightDir;				// Direction of the incoming light
+
+FluidSimulator fluidSimulator;	// The fluid simulator
 
 // Hard code cube model
 const float cubeVertices[] = {
@@ -147,7 +150,7 @@ void InitVAO() {
 // Sets up model, view and projection matrices
 void InitMatrices() {
 	glm::vec3 up(0.f, 1.f, 0.f);
-	cameraPosition = glm::vec3(-1.f, 1.f, 2.f);
+	cameraPosition = glm::vec3(-20.f, 90.f, 150.f);
 	cameraLookAt = glm::vec3(0.f, 0.f, 0.f);
 
 	modelMatrix = glm::mat4(1.f);
@@ -169,6 +172,15 @@ void init() {
 	InitVertexBuffer();
 	InitVAO();
 	InitMatrices();
+
+	// Do initialization for simulation
+	for (float z = -50.f; z < 50.f; z += 5.f) {
+		for (float y = -50.f; y < 50.f; y += 5.f) {
+			for (float x = -50.f; x < 50.f; x += 5.f) {
+				fluidSimulator.AddParticle(new Particle(x, y, z));
+			}
+		}
+	}
 }
 
 // Renders the scene
@@ -179,25 +191,26 @@ void display() {
 	glUseProgram(program);
 	glBindVertexArray(vao);
 
-	static float r = 0.f;
-	modelMatrix = glm::mat4(1.f);
-	r += 0.01f;
-	modelMatrix = glm::rotate(modelMatrix, r, glm::vec3(1.f, 1.f, 0.f));
-	//model = glm::translate(model, glm::vec3(-1.f, 0.f, 0.f));
-
-	mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
-	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-	modelViewMatrix = viewMatrix * modelMatrix;
-	glUniformMatrix4fv(modelViewMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
-	normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
-	glUniformMatrix4fv(normalMatrixUniform, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
-	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	// Draw particles
 	glUniform4f(diffuseUniform, 0.f, 0.f, 1.f, 1.f);
 	glUniform4f(ambientUniform, 0.05f, 0.05f, 0.2f, 1.f);
 	glUniform4f(specularUniform, 1.f, 1.f, 1.f, 1.f);
+	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
+	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
-	glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
+	std::vector<Particle*>& particles = fluidSimulator.GetParticles();
+	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
+		Particle* p = *pi;
+		modelMatrix = glm::translate(glm::mat4(1.f), p->GetPosition());
+		mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+		modelViewMatrix = viewMatrix * modelMatrix;
+		glUniformMatrix4fv(modelViewMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
+		normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
+		glUniformMatrix4fv(normalMatrixUniform, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+		glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
+	}
 
 	glBindVertexArray(0);
 	glUseProgram(0);

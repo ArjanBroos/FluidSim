@@ -75,6 +75,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="fluidsimulator.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="particle.cpp" />
@@ -84,6 +85,7 @@
     <None Include="shaders\shader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="fluidsimulator.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="particle.h" />
   </ItemGroup>

@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1CFFAC50-1532-42E2-8521-B272B8C49890}</ProjectGuid>
+    <RootNamespace>FluidSim</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v110</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <IncludePath>D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glm;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glload\include;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\boost;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glutil\include;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\freeglut\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glload\lib;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glutil\lib;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\freeglut\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <IncludePath>D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glm;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glload\include;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\boost;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glutil\include;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\freeglut\include;$(IncludePath)</IncludePath>
+    <LibraryPath>D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glload\lib;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\glutil\lib;D:\TUe\2IV15 - Simulation in Computer Graphics\Project 2\glsdk_0_5_2\freeglut\lib;$(LibraryPath)</LibraryPath>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>FREEGLUT_STATIC;_LIB;FREEGLUT_LIB_PRAGMAS=0;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>freeglutD.lib;glu32.lib;opengl32.lib;winmm.lib;glutilD.lib;glloadD.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>FREEGLUT_STATIC;_LIB;FREEGLUT_LIB_PRAGMAS=0;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>freeglut.lib;glu32.lib;opengl32.lib;winmm.lib;glutil.lib;glload.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="framework.cpp" />
+    <ClCompile Include="main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\shader.frag" />
+    <None Include="shaders\shader.vert" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="framework.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

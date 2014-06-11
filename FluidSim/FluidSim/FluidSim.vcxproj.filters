@@ -28,6 +28,9 @@
       <Filter>Source Files\framework</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
+      <Filter>Source Files\framework</Filter>
+    </ClCompile>
+    <ClCompile Include="particle.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -42,6 +45,9 @@
   <ItemGroup>
     <ClInclude Include="framework.h">
       <Filter>Header Files\framework</Filter>
+    </ClInclude>
+    <ClInclude Include="particle.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

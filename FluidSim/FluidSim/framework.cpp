@@ -87,6 +87,7 @@ int main(int argc, char** argv)
 	int width = 800;
 	int height = 600;
 	unsigned int displayMode = GLUT_DOUBLE | GLUT_ALPHA | GLUT_DEPTH | GLUT_STENCIL;
+	displayMode = defaults(displayMode, width, height);
 
 	glutInitDisplayMode (displayMode);
 	glutInitContextVersion (3, 3);

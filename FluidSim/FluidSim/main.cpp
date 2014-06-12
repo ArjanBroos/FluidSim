@@ -47,10 +47,11 @@ FluidSimulator fluidSimulator;	// The fluid simulator
 
 int simTime = 0;				// Starting times of simulation and rendering,
 int renderTime = 0;				// used for performance measurement
+float fps = 0.f;				// Frames per second
 
 void UpdateWindowTitle() {
 	std::stringstream ss;
-	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms";
+	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms - FPS: " << fps;
 	glutSetWindowTitle(ss.str().c_str());
 }
 
@@ -185,10 +186,11 @@ void init() {
 	InitMatrices();
 
 	// Do initialization for simulation
-	for (float z = -50.f; z < 50.f; z += 5.f) {
-		for (float y = -50.f; y < 50.f; y += 5.f) {
-			for (float x = -50.f; x < 50.f; x += 5.f) {
-				fluidSimulator.AddParticle(new Particle(x, y, z));
+	for (float z = -50.f; z < 50.f; z += 10.f) {
+		for (float y = -50.f; y < 50.f; y += 10.f) {
+			for (float x = -50.f; x < 50.f; x += 10.f) {
+				glm::vec3 position(x, y, z);
+				fluidSimulator.AddParticle(new Particle(position));
 			}
 		}
 	}
@@ -235,7 +237,12 @@ void display() {
 // Simulates the fluid
 void simulate() {
 	int startSim = glutGet(GLUT_ELAPSED_TIME);
-	// TODO: simulation
+
+	// Use time required for previous frame as timestep
+	float dt = (float)(simTime + renderTime) / 1000.f;
+	fps = 1.f / dt;
+
+	fluidSimulator.ExplicitEulerStep(dt);
 
 	// Start drawing again
 	glutPostRedisplay();

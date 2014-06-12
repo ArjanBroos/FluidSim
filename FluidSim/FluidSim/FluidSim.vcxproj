@@ -86,7 +86,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="fluidsimulator.h" />
-    <ClInclude Include="force.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="particle.h" />
   </ItemGroup>

@@ -55,8 +55,5 @@
     <ClInclude Include="fluidsimulator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="force.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>

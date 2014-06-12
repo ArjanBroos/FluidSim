@@ -12,6 +12,9 @@ public:
 	void AddParticle(Particle* particle);
 	void AddParticles(const std::vector<Particle*>& particles);
 
+	// Do an explicit Euler time integration step
+	void ExplicitEulerStep(float dt);
+
 	std::vector<Particle*>&	GetParticles();
 
 private:

@@ -2,6 +2,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+#include <string>
+#include <sstream>
 #include "framework.h"
 #include "fluidsimulator.h"
 
@@ -42,6 +44,15 @@ GLuint lightDirUniform;			// Uniform ID for the light direction
 glm::vec3 lightDir;				// Direction of the incoming light
 
 FluidSimulator fluidSimulator;	// The fluid simulator
+
+int simTime = 0;				// Starting times of simulation and rendering,
+int renderTime = 0;				// used for performance measurement
+
+void UpdateWindowTitle() {
+	std::stringstream ss;
+	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms";
+	glutSetWindowTitle(ss.str().c_str());
+}
 
 // Hard code cube model
 const float cubeVertices[] = {
@@ -185,6 +196,7 @@ void init() {
 
 // Renders the scene
 void display() {
+	int startRender = glutGet(GLUT_ELAPSED_TIME);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glClearDepth(1.f);
 
@@ -201,7 +213,7 @@ void display() {
 	std::vector<Particle*>& particles = fluidSimulator.GetParticles();
 	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
 		Particle* p = *pi;
-		modelMatrix = glm::translate(glm::mat4(1.f), p->GetPosition());
+		modelMatrix = glm::translate(glm::mat4(1.f), p->position);
 		mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 		modelViewMatrix = viewMatrix * modelMatrix;
@@ -216,14 +228,18 @@ void display() {
 	glUseProgram(0);
 
 	glutSwapBuffers();
+	renderTime = glutGet(GLUT_ELAPSED_TIME) - startRender;
+	UpdateWindowTitle();
 }
 
 // Simulates the fluid
 void simulate() {
+	int startSim = glutGet(GLUT_ELAPSED_TIME);
 	// TODO: simulation
 
 	// Start drawing again
 	glutPostRedisplay();
+	simTime = glutGet(GLUT_ELAPSED_TIME) - startSim;
 }
 
 // Handles keyboard input

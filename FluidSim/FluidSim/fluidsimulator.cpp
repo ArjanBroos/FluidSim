@@ -3,8 +3,9 @@
 #include <algorithm>
 
 FluidSimulator::~FluidSimulator() {
-	for (auto p = particles.begin(); p != particles.end(); p++)
-		delete *p;
+	// Free reserved memory
+	for (auto pi = particles.begin(); pi != particles.end(); pi++)
+		delete *pi;
 	particles.clear();
 }
 
@@ -14,8 +15,24 @@ void FluidSimulator::AddParticle(Particle* particle) {
 }
 
 void FluidSimulator::AddParticles(const std::vector<Particle*>& particles) {
-	for (auto p = particles.begin(); p != particles.end(); p++)
-		this->particles.push_back(*p);
+	for (auto pi = particles.begin(); pi != particles.end(); pi++)
+		this->particles.push_back(*pi);
+}
+
+// Do an explicit Euler time integration step
+void FluidSimulator::ExplicitEulerStep(float dt) {
+	// Clear force accumulators
+	for (auto pi = particles.begin(); pi != particles.end(); pi++)
+		(*pi)->forceAccum = glm::vec3(0.f, 0.f, 0.f);
+
+	// Apply forces
+
+	// Update positions and velocity
+	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
+		Particle* p = *pi;
+		p->position += p->velocity * dt;
+		p->velocity += (p->forceAccum / p->mass) * dt;
+	}
 }
 
 std::vector<Particle*>&	FluidSimulator::GetParticles() {

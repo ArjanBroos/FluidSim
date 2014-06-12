@@ -28,15 +28,3 @@ Particle::Particle(float px, float py, float pz, float vx, float vy, float vz) :
 	velocity(glm::vec3(vx, vy, vz)),
 	forceAccum(glm::vec3(0.f, 0.f, 0.f)) {
 }
-
-glm::vec3 Particle::GetPosition() const {
-	return position;
-}
-
-glm::vec3 Particle::GetVelocity() const {
-	return velocity;
-}
-
-glm::vec3 Particle::GetForceAccum() const {
-	return forceAccum;
-}

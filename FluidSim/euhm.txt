@@ -1,0 +1,5 @@
+Catto
+
+Iterative dynamics with temporal coherence
+
+Solver:  Projected Gauss-Seidel

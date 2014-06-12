@@ -36,6 +36,9 @@
     <ClCompile Include="fluidsimulator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="boundingbox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag">
@@ -53,6 +56,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="fluidsimulator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="boundingbox.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

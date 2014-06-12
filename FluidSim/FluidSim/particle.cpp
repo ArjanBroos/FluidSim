@@ -5,7 +5,7 @@ const glm::vec3 standardVelocity(0.f, 0.f, 0.f);
 const glm::vec3 standardForceAccum(0.f, 0.f, 0.f);
 const float standardMass = 1.f;
 const float standardDensity = 0.f;
-const float standardRestDensity = 1e-8f;
+const float standardRestDensity = 1.f;
 const float standardPressure = 0.f;
 
 Particle::Particle() :

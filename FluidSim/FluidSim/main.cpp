@@ -43,7 +43,8 @@ glm::vec4 specular;				// Specular color to render with
 GLuint lightDirUniform;			// Uniform ID for the light direction
 glm::vec3 lightDir;				// Direction of the incoming light
 
-FluidSimulator fluidSimulator;	// The fluid simulator
+FluidSimulator fluidSimulator(	// The fluid simulator
+	AABoundingBox(glm::vec3(0.f, 0.f, 0.f), 100.f));
 
 int simTime = 0;				// Starting times of simulation and rendering,
 int renderTime = 0;				// used for performance measurement
@@ -186,9 +187,9 @@ void init() {
 	InitMatrices();
 
 	// Do initialization for simulation
-	for (float z = -50.f; z < 50.f; z += 10.f) {
-		for (float y = -50.f; y < 50.f; y += 10.f) {
-			for (float x = -50.f; x < 50.f; x += 10.f) {
+	for (float z = -50.f; z < 40.f; z += 5.f) {
+		for (float y = 0.f; y < 40.f; y += 5.f) {
+			for (float x = 0.f; x < 40.f; x += 5.f) {
 				glm::vec3 position(x, y, z);
 				fluidSimulator.AddParticle(new Particle(position));
 			}

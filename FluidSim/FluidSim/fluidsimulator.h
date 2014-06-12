@@ -2,10 +2,12 @@
 
 #include "particle.h"
 #include <vector>
+#include "boundingbox.h"
 
 // Simulates fluids using particles
 class FluidSimulator {
 public:
+	FluidSimulator(const AABoundingBox& boundingBox);
 	~FluidSimulator();
 
 	// This class takes ownership of the particle pointers and will be the one to destroy them
@@ -36,6 +38,10 @@ private:
 	void		ApplyPressureForces();
 	void		ApplyViscosityForces();
 	void		ApplySurfaceTensionForces();
+	void		ApplyGravityForces();
 
-	std::vector<Particle*>	particles;	// These particles represent the fluid
+	void		DetectAndRespondCollisions();
+
+	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
+	std::vector<Particle*>	particles;		// These particles represent the fluid
 };

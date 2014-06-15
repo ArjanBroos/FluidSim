@@ -39,6 +39,12 @@
     <ClCompile Include="boundingbox.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="kernels.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="util.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\shader.frag">
@@ -59,6 +65,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="boundingbox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kernels.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -17,20 +17,12 @@ public:
 	// Do an explicit Euler time integration step
 	void ExplicitEulerStep(float dt);
 
+	// Removes all particles
+	void Clear();
+
 	std::vector<Particle*>&	GetParticles();
 
 private:
-	// Takes |r|² as input, to avoid expensive sqrt() function
-	float		KernelPoly6(float lengthOfRSquared, float h);
-	glm::vec3	KernelPoly6Gradient(const glm::vec3& r, float h);
-	float		KernelPoly6Laplacian(const glm::vec3& r, float h);
-	float		KernelSpiky(const glm::vec3& r, float h);
-	glm::vec3	KernelSpikyGradient(const glm::vec3& r, float h);
-	float		KernelSpikyLaplacian(const glm::vec3& r, float h);
-	float		KernelViscosity(const glm::vec3& r, float h);
-	glm::vec3	KernelViscosityGradient(const glm::vec3& r, float h);
-	float		KernelViscosityLaplacian(const glm::vec3& r, float h);
-
 	void		CalculateDensities();
 	void		CalculatePressures();
 
@@ -40,7 +32,7 @@ private:
 	void		ApplySurfaceTensionForces();
 	void		ApplyGravityForces();
 
-	void		DetectAndRespondCollisions();
+	void		DetectAndRespondCollisions(float dt);
 
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid

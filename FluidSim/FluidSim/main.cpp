@@ -163,7 +163,7 @@ void InitVAO() {
 // Sets up model, view and projection matrices
 void InitMatrices() {
 	glm::vec3 up(0.f, 1.f, 0.f);
-	cameraPosition = glm::vec3(-20.f, 90.f, 150.f);
+	cameraPosition = glm::vec3(-20.f, 50.f, 130.f);
 	cameraLookAt = glm::vec3(0.f, 0.f, 0.f);
 
 	modelMatrix = glm::mat4(1.f);
@@ -178,6 +178,17 @@ unsigned int defaults(unsigned int displayMode, int& width, int& height) {
 	return GLUT_DOUBLE | GLUT_RGBA | GLUT_DEPTH;
 }
 
+void AddParticles() {
+	for (float z = -50.f; z < 40.f; z += 6.f) {
+		for (float y = 0.f; y < 40.f; y += 6.f) {
+			for (float x = 0.f; x < 40.f; x += 6.f) {
+				glm::vec3 position(x, y, z);
+				fluidSimulator.AddParticle(new Particle(position));
+			}
+		}
+	}
+}
+
 // Initializes our application
 void init() {
 	InitOpenGL();
@@ -187,14 +198,7 @@ void init() {
 	InitMatrices();
 
 	// Do initialization for simulation
-	for (float z = -50.f; z < 40.f; z += 5.f) {
-		for (float y = 0.f; y < 40.f; y += 5.f) {
-			for (float x = 0.f; x < 40.f; x += 5.f) {
-				glm::vec3 position(x, y, z);
-				fluidSimulator.AddParticle(new Particle(position));
-			}
-		}
-	}
+	AddParticles();
 }
 
 // Renders the scene
@@ -243,7 +247,7 @@ void simulate() {
 	float dt = (float)(simTime + renderTime) / 1000.f;
 	fps = 1.f / dt;
 
-	fluidSimulator.ExplicitEulerStep(dt);
+	fluidSimulator.ExplicitEulerStep(0.1f);
 
 	// Start drawing again
 	glutPostRedisplay();
@@ -254,6 +258,8 @@ void simulate() {
 void keyboard(unsigned char key, int x, int y) {
 	// Shut down program if ESC key is pressed
 	if (key == 27) glutLeaveMainLoop();
+	// Reset simulation if Space key is pressed
+	if (key == ' ') { fluidSimulator.Clear(); AddParticles(); }
 }
 
 // Handles reshaping of the window

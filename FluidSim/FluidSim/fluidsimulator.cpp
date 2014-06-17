@@ -4,13 +4,15 @@
 #include <glm/gtx/norm.hpp>
 #include "kernels.h"
 
-const float h = 20.f;			// SPH radius
-const float k = 1e8f;			// Pressure constant
-const float mu = 3e4f;			// Viscosity constant
-const float bounce = 0.3f;		// Collision response factor
+const float h = 25.f;			// SPH radius
+const float k = 3e8f;			// Pressure constant
+const float mu = 6e4f;			// Viscosity constant
+const float bounce = 0.2f;		// Collision response factor
 
 FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
 	this->boundingBox = boundingBox;
+	gravity = true;
+	wind = false;
 }
 
 FluidSimulator::~FluidSimulator() {
@@ -25,6 +27,14 @@ void FluidSimulator::AddParticle(Particle* particle) {
 void FluidSimulator::AddParticles(const std::vector<Particle*>& particles) {
 	for (auto pi = particles.begin(); pi != particles.end(); pi++)
 		this->particles.push_back(*pi);
+}
+
+void FluidSimulator::ToggleGravity() {
+	gravity = !gravity;
+}
+
+void FluidSimulator::ToggleWind() {
+	wind = !wind;
 }
 
 // Do an explicit Euler time integration step
@@ -92,7 +102,8 @@ void FluidSimulator::ApplyAllForces() {
 	CalculatePressures();
 
 	ApplyPressureForces();
-	ApplyGravityForces();
+	if (gravity) ApplyGravityForces();
+	if (wind) ApplyWindForces();
 	ApplyViscosityForces();
 	ApplySurfaceTensionForces();
 }
@@ -146,6 +157,16 @@ void FluidSimulator::ApplyGravityForces() {
 	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
 		Particle* p = *pi;
 		p->forceAccum += p->restDensity * gv;
+	}
+}
+
+// Apply a force to all particles in direction of negative x-axis
+void FluidSimulator::ApplyWindForces() {
+	const float wf = 6.f;
+	const glm::vec3 wfv(-wf, 0.f, 0.f);
+	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
+		Particle* p = *pi;
+		p->forceAccum += p->restDensity * wfv;
 	}
 }
 

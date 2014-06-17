@@ -201,12 +201,7 @@ void init() {
 	AddParticles();
 }
 
-// Renders the scene
-void display() {
-	int startRender = glutGet(GLUT_ELAPSED_TIME);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearDepth(1.f);
-
+void DisplayNormal() {
 	glUseProgram(program);
 	glBindVertexArray(vao);
 
@@ -217,10 +212,12 @@ void display() {
 	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
 	glUniformMatrix4fv(viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
 
+	const float particleScale = 3.f;
 	std::vector<Particle*>& particles = fluidSimulator.GetParticles();
 	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
 		Particle* p = *pi;
-		modelMatrix = glm::translate(glm::mat4(1.f), p->position);
+		modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(particleScale, particleScale, particleScale));
+		modelMatrix = glm::translate(modelMatrix, p->position / particleScale);
 		mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 		glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 		modelViewMatrix = viewMatrix * modelMatrix;
@@ -233,6 +230,15 @@ void display() {
 
 	glBindVertexArray(0);
 	glUseProgram(0);
+}
+
+// Renders the scene
+void display() {
+	int startRender = glutGet(GLUT_ELAPSED_TIME);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	glClearDepth(1.f);
+
+	DisplayNormal();
 
 	glutSwapBuffers();
 	renderTime = glutGet(GLUT_ELAPSED_TIME) - startRender;
@@ -260,6 +266,10 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 27) glutLeaveMainLoop();
 	// Reset simulation if Space key is pressed
 	if (key == ' ') { fluidSimulator.Clear(); AddParticles(); }
+	// Toggle gravity force with G key
+	if (key == 'g') { fluidSimulator.ToggleGravity(); }
+	// Toggle wind force with W key
+	if (key == 'w') { fluidSimulator.ToggleWind(); }
 }
 
 // Handles reshaping of the window

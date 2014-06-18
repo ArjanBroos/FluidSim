@@ -26,6 +26,10 @@ public:
 
 	std::vector<Particle*>&	GetParticles();
 
+	bool isWind();
+	bool isGravity();
+	bool isSurfaceTension();
+
 private:
 	void		CalculateDensities();
 	void		CalculatePressures();
@@ -40,9 +44,16 @@ private:
 	void		DetectAndRespondCollisions(float dt);
 	float		csGradient(float cs);
 
+	void FluidSimulator::initOctree();
+	void FluidSimulator::calculateOctree();
+	std::vector<Particle*> FluidSimulator::GetParticles(Particle* pi, std::vector<Particle*> particles);
+
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid
+	std::vector<std::vector<Particle*>>	octree; // octree for detecting particles close to one another
 	bool					gravity;		// True if gravity force is to be applied
 	bool					wind;			// True if wind force is to be applied
 	bool					surfaceTension;	// True if surface tension force is to be applied
+	
+	int						d1,d2,d3;		// dimensions of octree (including extra (empty) space on each side)
 };

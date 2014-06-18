@@ -52,7 +52,8 @@ float fps = 0.f;				// Frames per second
 
 void UpdateWindowTitle() {
 	std::stringstream ss;
-	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms - FPS: " << fps;
+	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms - FPS: " << floor(fps) << " wind: " << (fluidSimulator.isWind()?"Y":"N") << " gravity: " 
+		<< (fluidSimulator.isGravity()?"Y":"N") << " surface tension: " << (fluidSimulator.isSurfaceTension()?"Y":"N");
 	glutSetWindowTitle(ss.str().c_str());
 }
 

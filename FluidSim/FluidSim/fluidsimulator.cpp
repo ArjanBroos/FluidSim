@@ -8,7 +8,7 @@ const float h = 25.f;			// SPH radius
 const float k = 3e8f;			// Pressure constant
 const float mu = 6e4f;			// Viscosity constant
 const float bounce = 0.2f;		// Collision response factor
-const float sigma = 5.f;		// Surface tension coefficient
+const float sigma = 10.f;		// Surface tension coefficient
 
 FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
 	this->boundingBox = boundingBox;
@@ -19,6 +19,34 @@ FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
 
 FluidSimulator::~FluidSimulator() {
 	Clear();
+}
+
+void FluidSimulator::initOctree(){
+	d1 = 2 + (int)floor(abs(boundingBox.right - boundingBox.left)/h);
+	d1 = 2 + (int)floor(abs(boundingBox.top - boundingBox.bottom)/h);
+	d1 = 2 + (int)floor(abs(boundingBox.front - boundingBox.back)/h);
+	this->octree.resize((d1+2)*(d2+2)*(d3+2));
+}
+
+void FluidSimulator::calculateOctree(){
+	for (auto pi = particles.begin(); pi != particles.end(); pi++){
+		int pos = 1+(int)floor((*pi)->position.x/h) + (1+(int)floor((*pi)->position.y/h) + (1+(int)floor((*pi)->position.z/h))*d2 )*d1;
+		this->octree[pos].push_back(*pi);
+	}
+}
+
+std::vector<Particle*> FluidSimulator::GetParticles(Particle* pi, std::vector<Particle*> particles){
+	int pos = 1+(int)floor(pi->position.x/h) + (1+(int)floor(pi->position.y/h) + (1+(int)floor(pi->position.z/h))*d2 )*d1;
+	int pos2;
+	for (int i = -1; i <= 1; i++){
+		for (int j = -1; j <= 1; j++){
+			for (int k = -1; k <= 1; k++){
+				pos2 = pos + i + (j + k*d2 )*d1;
+				for (auto p2 = octree[pos2].begin(); p2 != octree[pos2].end(); p2++)
+					particles.push_back(*p2);
+			}
+		}
+	}
 }
 
 // This class takes ownership of the particle pointers and will be the one to destroy them
@@ -226,4 +254,14 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 
 float FluidSimulator::csGradient(float cs) {
 	return 0;
+}
+
+bool FluidSimulator::isWind(){
+	return wind;
+}
+bool FluidSimulator::isGravity(){
+	return gravity;
+}
+bool FluidSimulator::isSurfaceTension(){
+	return surfaceTension;
 }

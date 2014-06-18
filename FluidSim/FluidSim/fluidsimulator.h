@@ -16,6 +16,7 @@ public:
 
 	void ToggleGravity();
 	void ToggleWind();
+	void ToggleSurfaceTension();
 
 	// Do an explicit Euler time integration step
 	void ExplicitEulerStep(float dt);
@@ -37,9 +38,11 @@ private:
 	void		ApplyWindForces();
 
 	void		DetectAndRespondCollisions(float dt);
+	float		csGradient(float cs);
 
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid
 	bool					gravity;		// True if gravity force is to be applied
 	bool					wind;			// True if wind force is to be applied
+	bool					surfaceTension;	// True if surface tension force is to be applied
 };

@@ -8,11 +8,13 @@ const float h = 25.f;			// SPH radius
 const float k = 3e8f;			// Pressure constant
 const float mu = 6e4f;			// Viscosity constant
 const float bounce = 0.2f;		// Collision response factor
+const float sigma = 5.f;		// Surface tension coefficient
 
 FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
 	this->boundingBox = boundingBox;
 	gravity = true;
 	wind = false;
+	surfaceTension = false;
 }
 
 FluidSimulator::~FluidSimulator() {
@@ -35,6 +37,10 @@ void FluidSimulator::ToggleGravity() {
 
 void FluidSimulator::ToggleWind() {
 	wind = !wind;
+}
+
+void FluidSimulator::ToggleSurfaceTension(){
+	surfaceTension = !surfaceTension;
 }
 
 // Do an explicit Euler time integration step
@@ -105,7 +111,7 @@ void FluidSimulator::ApplyAllForces() {
 	if (gravity) ApplyGravityForces();
 	if (wind) ApplyWindForces();
 	ApplyViscosityForces();
-	ApplySurfaceTensionForces();
+	if (surfaceTension) ApplySurfaceTensionForces();
 }
 
 void FluidSimulator::ApplyPressureForces() {
@@ -149,6 +155,35 @@ void FluidSimulator::ApplyViscosityForces() {
 }
 
 void FluidSimulator::ApplySurfaceTensionForces() {
+	float lenThreshold = 1e-8f;
+	// For every particle
+	for (unsigned i = 0; i < particles.size(); i++) {
+		Particle* pi = particles[i];
+
+		glm::vec3 gradCs = glm::vec3(0,0,0);
+		float laplaceCs = 0;
+
+		// Compute surfaceTension force from every other particle
+		for (unsigned j = 0; j < particles.size(); j++) {
+			if (j != i){
+				Particle* pj = particles[j];
+				const glm::vec3 r = pi->position - pj->position;
+				float laplace = 0;
+
+				float rSquared = glm::length2(pi->position - pj->position);
+				glm::vec3 grad = KernelPoly6GradientLaplacian(r,h,laplace);
+
+				gradCs += pj->mass / pj->density * grad;
+				laplaceCs += pj->mass / pj->density * laplace;
+
+			}
+		}
+		float nlen = glm::length(gradCs);
+
+		if (nlen < lenThreshold) continue;
+
+		pi->forceAccum += -sigma * laplaceCs * gradCs / nlen;
+	}
 }
 
 void FluidSimulator::ApplyGravityForces() {
@@ -187,4 +222,8 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 			p->velocity = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
 		}
 	}
+}
+
+float FluidSimulator::csGradient(float cs) {
+	return 0;
 }

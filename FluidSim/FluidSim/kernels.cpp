@@ -25,6 +25,18 @@ float KernelPoly6Laplacian(const glm::vec3& r, float h) {
 	return (-945.f / (32 * PI * pow(h, 9))) * (hs - lrs) * (3.f * hs - 7.f * lrs);
 }
 
+glm::vec3 KernelPoly6GradientLaplacian(const glm::vec3& r, float h, float& laplac) {
+	const float lr = glm::length(r);
+	const float lrs = lr*lr;
+	const float hs = h*h;
+	if (lr < 0.f || lr > h) {
+		laplac = 0.f;
+		return glm::vec3(0.f, 0.f, 0.f);
+	}
+	laplac = (-945.f / (32 * PI * pow(h, 9))) * (hs - lrs) * (3.f * hs - 7.f * lrs);
+	return (-945.f / (32.f * PI * pow(h, 9))) * r * pow(hs - lrs, 2);
+}
+
 float KernelSpiky(const glm::vec3& r, float h) {
 	const float lr = glm::length(r);
 	if (lr < 0.f || lr > h) return 0.f;

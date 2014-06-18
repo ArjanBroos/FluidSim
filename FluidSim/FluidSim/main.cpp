@@ -270,6 +270,8 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'g') { fluidSimulator.ToggleGravity(); }
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
+	// Toggle surface tension force with S key
+	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
 }
 
 // Handles reshaping of the window

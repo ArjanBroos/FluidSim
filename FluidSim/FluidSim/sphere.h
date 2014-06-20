@@ -20,6 +20,7 @@ public:
 	glm::vec3 GetAngularVelocity(glm::vec3 contactpoint);
 	glm::vec3 GetVelocity();
 	glm::vec3 contactNormal();
+	glm::vec3 absoluteContactPoint(glm::vec3& relposition);
 
 	bool collision(const glm::vec3& parposition, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal);
 

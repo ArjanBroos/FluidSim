@@ -304,6 +304,7 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 				const glm::vec3  speedNormal = velRelative * n; // Contact normal depends on geometry.
 				const glm::vec3  impulse = -speedNormal * n; // Minus: speedNormal is negative.
 				particle->velocity = particle->velocity + impulse * sImpactCoefficient;
+				particle->position = rigidBody->absoluteContactPoint(cp);
 			}
 		}
 	}
@@ -318,7 +319,7 @@ bool FluidSimulator::isWind(){
 	return wind;
 }
 bool FluidSimulator::isGravity(){
-	return gravity;
+	return fluidgravity;
 }
 bool FluidSimulator::isSurfaceTension(){
 	return surfaceTension;

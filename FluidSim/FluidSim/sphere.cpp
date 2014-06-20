@@ -63,3 +63,8 @@ bool sphere::collision(const glm::vec3& parposition, glm::vec3& contactPoint, fl
 
 	return false;
 }
+
+glm::vec3 sphere::absoluteContactPoint(glm::vec3& relposition){
+	return position + relposition;
+
+}

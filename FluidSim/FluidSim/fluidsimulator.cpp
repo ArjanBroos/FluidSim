@@ -8,16 +8,46 @@ const float h = 25.f;			// SPH radius
 const float k = 3e8f;			// Pressure constant
 const float mu = 6e4f;			// Viscosity constant
 const float bounce = 0.2f;		// Collision response factor
+const float sigma = 10.f;		// Surface tension coefficient
 
 FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
 	this->boundingBox = boundingBox;
 	fluidgravity = true;
 	bodygravity = false;
 	wind = false;
+	surfaceTension = false;
 }
 
 FluidSimulator::~FluidSimulator() {
 	Clear();
+}
+
+void FluidSimulator::initOctree(){
+	d1 = 2 + (int)floor(abs(boundingBox.right - boundingBox.left)/h);
+	d1 = 2 + (int)floor(abs(boundingBox.top - boundingBox.bottom)/h);
+	d1 = 2 + (int)floor(abs(boundingBox.front - boundingBox.back)/h);
+	this->octree.resize((d1+2)*(d2+2)*(d3+2));
+}
+
+void FluidSimulator::calculateOctree(){
+	for (auto pi = particles.begin(); pi != particles.end(); pi++){
+		int pos = 1+(int)floor((*pi)->position.x/h) + (1+(int)floor((*pi)->position.y/h) + (1+(int)floor((*pi)->position.z/h))*d2 )*d1;
+		this->octree[pos].push_back(*pi);
+	}
+}
+
+std::vector<Particle*> FluidSimulator::GetParticles(Particle* pi, std::vector<Particle*> particles){
+	int pos = 1+(int)floor(pi->position.x/h) + (1+(int)floor(pi->position.y/h) + (1+(int)floor(pi->position.z/h))*d2 )*d1;
+	int pos2;
+	for (int i = -1; i <= 1; i++){
+		for (int j = -1; j <= 1; j++){
+			for (int k = -1; k <= 1; k++){
+				pos2 = pos + i + (j + k*d2 )*d1;
+				for (auto p2 = octree[pos2].begin(); p2 != octree[pos2].end(); p2++)
+					particles.push_back(*p2);
+			}
+		}
+	}
 }
 
 // This class takes ownership of the particle pointers and will be the one to destroy them
@@ -51,6 +81,10 @@ void FluidSimulator::ToggleBodyGravity() {
 
 void FluidSimulator::ToggleWind() {
 	wind = !wind;
+}
+
+void FluidSimulator::ToggleSurfaceTension(){
+	surfaceTension = !surfaceTension;
 }
 
 // Do an explicit Euler time integration step
@@ -136,7 +170,7 @@ void FluidSimulator::ApplyAllForces() {
 	ApplyGravityForces();
 	if (wind) ApplyWindForces();
 	ApplyViscosityForces();
-	ApplySurfaceTensionForces();
+	if (surfaceTension) ApplySurfaceTensionForces();
 }
 
 void FluidSimulator::ApplyPressureForces() {
@@ -180,6 +214,35 @@ void FluidSimulator::ApplyViscosityForces() {
 }
 
 void FluidSimulator::ApplySurfaceTensionForces() {
+	float lenThreshold = 1e-8f;
+	// For every particle
+	for (unsigned i = 0; i < particles.size(); i++) {
+		Particle* pi = particles[i];
+
+		glm::vec3 gradCs = glm::vec3(0,0,0);
+		float laplaceCs = 0;
+
+		// Compute surfaceTension force from every other particle
+		for (unsigned j = 0; j < particles.size(); j++) {
+			if (j != i){
+				Particle* pj = particles[j];
+				const glm::vec3 r = pi->position - pj->position;
+				float laplace = 0;
+
+				float rSquared = glm::length2(pi->position - pj->position);
+				glm::vec3 grad = KernelPoly6GradientLaplacian(r,h,laplace);
+
+				gradCs += pj->mass / pj->density * grad;
+				laplaceCs += pj->mass / pj->density * laplace;
+
+			}
+		}
+		float nlen = glm::length(gradCs);
+
+		if (nlen < lenThreshold) continue;
+
+		pi->forceAccum += -sigma * laplaceCs * gradCs / nlen;
+	}
 }
 
 void FluidSimulator::ApplyGravityForces() {
@@ -226,7 +289,7 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 			p->velocity = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
 		}
 	}
-	
+
 	static const float sElasticity = bounce;
 	static const float sImpactCoefficient = 1.0f + sElasticity;
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
@@ -244,4 +307,19 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 			}
 		}
 	}
+
+}
+
+float FluidSimulator::csGradient(float cs) {
+	return 0;
+}
+
+bool FluidSimulator::isWind(){
+	return wind;
+}
+bool FluidSimulator::isGravity(){
+	return gravity;
+}
+bool FluidSimulator::isSurfaceTension(){
+	return surfaceTension;
 }

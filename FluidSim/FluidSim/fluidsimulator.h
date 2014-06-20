@@ -23,6 +23,7 @@ public:
 	void ToggleFluidGravity();
 	void ToggleBodyGravity();
 	void ToggleWind();
+	void ToggleSurfaceTension();
 
 	// Do an explicit Euler time integration step
 	void ExplicitEulerStep(float dt);
@@ -33,6 +34,10 @@ public:
 	std::vector<Particle*>&	GetParticles();
 	std::vector<body*>&	GetBodies();
 	body* movingBody;
+
+	bool isWind();
+	bool isGravity();
+	bool isSurfaceTension();
 
 private:
 	void		CalculateDensities();
@@ -46,11 +51,20 @@ private:
 	void		ApplyWindForces();
 
 	void		DetectAndRespondCollisions(float dt);
+	float		csGradient(float cs);
+
+	void FluidSimulator::initOctree();
+	void FluidSimulator::calculateOctree();
+	std::vector<Particle*> FluidSimulator::GetParticles(Particle* pi, std::vector<Particle*> particles);
 
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid
 	std::vector<body*>		bodies;			// The bodies in the simulation
 	bool					fluidgravity;	// True if gravity force is to be applied on the fluid
 	bool					bodygravity;	// True if gravity force is to be applied on the bodies
+	std::vector<std::vector<Particle*>>	octree; // octree for detecting particles close to one another
 	bool					wind;			// True if wind force is to be applied
+	bool					surfaceTension;	// True if surface tension force is to be applied
+	
+	int						d1,d2,d3;		// dimensions of octree (including extra (empty) space on each side)
 };

@@ -52,7 +52,8 @@ float fps = 0.f;				// Frames per second
 
 void UpdateWindowTitle() {
 	std::stringstream ss;
-	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms - FPS: " << fps;
+	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms - FPS: " << floor(fps) << " wind: " << (fluidSimulator.isWind()?"Y":"N") << " gravity: " 
+		<< (fluidSimulator.isGravity()?"Y":"N") << " surface tension: " << (fluidSimulator.isSurfaceTension()?"Y":"N");
 	glutSetWindowTitle(ss.str().c_str());
 }
 
@@ -294,9 +295,10 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'b') { fluidSimulator.ToggleBodyGravity(); }
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
-
 	if (key == 'i'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 1.f, 0.f); }
 	if (key == 'k'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 1.f, 0.f); }
+	// Toggle surface tension force with S key
+	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
 }
 
 // Handles reshaping of the window

@@ -6,6 +6,7 @@
 float		KernelPoly6(float lengthOfRSquared, float h);
 glm::vec3	KernelPoly6Gradient(const glm::vec3& r, float h);
 float		KernelPoly6Laplacian(const glm::vec3& r, float h);
+glm::vec3	KernelPoly6GradientLaplacian(const glm::vec3& r, float h, float& laplac);
 float		KernelSpiky(const glm::vec3& r, float h);
 glm::vec3	KernelSpikyGradient(const glm::vec3& r, float h);
 float		KernelSpikyLaplacian(const glm::vec3& r, float h);

@@ -189,6 +189,10 @@ void AddParticles() {
 	}
 }
 
+void AddBodies() {
+	fluidSimulator.AddBody(new sphere(glm::vec3(0.f, 70.f, 0.f),40.0));
+}
+
 // Initializes our application
 void init() {
 	InitOpenGL();
@@ -199,6 +203,7 @@ void init() {
 
 	// Do initialization for simulation
 	AddParticles();
+	AddBodies();
 }
 
 void DisplayNormal() {
@@ -227,6 +232,23 @@ void DisplayNormal() {
 
 		glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
 	}
+
+
+	std::vector<body*>& bodies = fluidSimulator.GetBodies();
+	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
+		body* b = *bi;
+		b->draw(mvpMatrixUniform,
+			modelViewMatrixUniform,
+			normalMatrixUniform,
+			modelMatrix,
+			viewMatrix,
+			projectionMatrix,
+			mvpMatrix,
+			modelViewMatrix,
+			normalMatrix);
+	}
+
+
 
 	glBindVertexArray(0);
 	glUseProgram(0);
@@ -265,11 +287,16 @@ void keyboard(unsigned char key, int x, int y) {
 	// Shut down program if ESC key is pressed
 	if (key == 27) glutLeaveMainLoop();
 	// Reset simulation if Space key is pressed
-	if (key == ' ') { fluidSimulator.Clear(); AddParticles(); }
+	if (key == ' ') { fluidSimulator.Clear(); AddParticles(); AddBodies(); }
 	// Toggle gravity force with G key
-	if (key == 'g') { fluidSimulator.ToggleGravity(); }
+	if (key == 'g') { fluidSimulator.ToggleFluidGravity(); }
+	// Toggle gravity force with G key
+	if (key == 'b') { fluidSimulator.ToggleBodyGravity(); }
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
+
+	if (key == 'i'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 1.f, 0.f); }
+	if (key == 'k'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 1.f, 0.f); }
 }
 
 // Handles reshaping of the window

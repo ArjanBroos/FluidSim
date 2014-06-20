@@ -11,7 +11,8 @@ const float bounce = 0.2f;		// Collision response factor
 
 FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
 	this->boundingBox = boundingBox;
-	gravity = true;
+	fluidgravity = true;
+	bodygravity = false;
 	wind = false;
 }
 
@@ -29,8 +30,23 @@ void FluidSimulator::AddParticles(const std::vector<Particle*>& particles) {
 		this->particles.push_back(*pi);
 }
 
-void FluidSimulator::ToggleGravity() {
-	gravity = !gravity;
+// This class takes ownership of the body pointers and will be the one to destroy them
+void FluidSimulator::AddBody(body* body) {
+	bodies.push_back(body);
+	movingBody = body;
+}
+
+void FluidSimulator::AddBodies(const std::vector<body*>& bodies) {
+	for (auto pi = bodies.begin(); pi != bodies.end(); pi++)
+		this->bodies.push_back(*pi);
+}
+
+void FluidSimulator::ToggleFluidGravity() {
+	fluidgravity = !fluidgravity;
+}
+
+void FluidSimulator::ToggleBodyGravity() {
+	bodygravity = !bodygravity;
 }
 
 void FluidSimulator::ToggleWind() {
@@ -42,6 +58,8 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 	// Clear force accumulators
 	for (auto pi = particles.begin(); pi != particles.end(); pi++)
 		(*pi)->forceAccum = glm::vec3(0.f, 0.f, 0.f);
+	for (auto bi = bodies.begin(); bi != bodies.end(); bi++)
+		(*bi)->forceAccum = glm::vec3(0.f, 0.f, 0.f);
 
 	// Apply forces
 	ApplyAllForces();
@@ -51,6 +69,11 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 		Particle* p = *pi;
 		p->position += p->velocity * dt;
 		p->velocity += (p->forceAccum / p->mass) * dt;
+	}
+	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
+		body* b = *bi;
+		b->position += b->velocity * dt;
+		b->velocity += (b->forceAccum / b->mass) * dt;
 	}
 
 	// Fix collisions
@@ -63,10 +86,18 @@ void FluidSimulator::Clear() {
 	for (auto pi = particles.begin(); pi != particles.end(); pi++)
 		delete *pi;
 	particles.clear();
+	// Free reserved memory
+	for (auto pi = bodies.begin(); pi != bodies.end(); pi++)
+		delete *pi;
+	bodies.clear();
 }
 
 std::vector<Particle*>&	FluidSimulator::GetParticles() {
 	return particles;
+}
+
+std::vector<body*>&	FluidSimulator::GetBodies() {
+	return bodies;
 }
 
 void FluidSimulator::CalculateDensities() {
@@ -102,7 +133,7 @@ void FluidSimulator::ApplyAllForces() {
 	CalculatePressures();
 
 	ApplyPressureForces();
-	if (gravity) ApplyGravityForces();
+	ApplyGravityForces();
 	if (wind) ApplyWindForces();
 	ApplyViscosityForces();
 	ApplySurfaceTensionForces();
@@ -154,9 +185,17 @@ void FluidSimulator::ApplySurfaceTensionForces() {
 void FluidSimulator::ApplyGravityForces() {
 	const float g = 9.81f; // Gravitational constant for Earth
 	const glm::vec3 gv(0.f, -g, 0.f);
-	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
-		Particle* p = *pi;
-		p->forceAccum += p->restDensity * gv;
+	if (fluidgravity){
+		for (auto pi = particles.begin(); pi != particles.end(); pi++) {
+			Particle* p = *pi;
+			p->forceAccum += p->restDensity * gv;
+		}
+	}
+	if (bodygravity){
+		for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
+			body* b = *bi;
+			b->forceAccum += b->mass * gv;
+		}
 	}
 }
 
@@ -185,6 +224,24 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 			p->position = cp;
 			// Reflect velocity with bounce factor in mind
 			p->velocity = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
+		}
+	}
+	
+	static const float sElasticity = bounce;
+	static const float sImpactCoefficient = 1.0f + sElasticity;
+	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
+		body* rigidBody = *bi;
+		const glm::vec3 & physObjVelocity = rigidBody->GetVelocity();
+		for (auto pi = particles.begin(); pi != particles.end(); pi++) {
+			Particle* particle = *pi;
+			if (rigidBody->collision(particle->position, cp, d, n)){
+				const glm::vec3  vVelDueToRotAtConPt = rigidBody->GetAngularVelocity(cp);
+				const glm::vec3  vVelBodyAtConPt = physObjVelocity + vVelDueToRotAtConPt;
+				const glm::vec3  velRelative = particle->velocity - vVelBodyAtConPt;
+				const glm::vec3  speedNormal = velRelative * n; // Contact normal depends on geometry.
+				const glm::vec3  impulse = -speedNormal * n; // Minus: speedNormal is negative.
+				particle->velocity = particle->velocity + impulse * sImpactCoefficient;
+			}
 		}
 	}
 }

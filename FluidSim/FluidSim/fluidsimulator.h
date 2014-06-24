@@ -1,6 +1,8 @@
 #pragma once
 
 #include "particle.h"
+#include "Body.h"
+#include "Sphere.h"
 #include <vector>
 #include "boundingbox.h"
 
@@ -14,7 +16,12 @@ public:
 	void AddParticle(Particle* particle);
 	void AddParticles(const std::vector<Particle*>& particles);
 
-	void ToggleGravity();
+	// This class takes ownership of the body pointers and will be the one to destroy them
+	void AddBody(body* body);
+	void AddBodies(const std::vector<body*>& body);
+
+	void ToggleFluidGravity();
+	void ToggleBodyGravity();
 	void ToggleWind();
 	void ToggleSurfaceTension();
 
@@ -25,6 +32,8 @@ public:
 	void Clear();
 
 	std::vector<Particle*>&	GetParticles();
+	std::vector<body*>&	GetBodies();
+	body* movingBody;
 
 	bool isWind();
 	bool isGravity();
@@ -52,8 +61,10 @@ private:
 
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid
+	std::vector<body*>		bodies;			// The bodies in the simulation
+	bool					fluidgravity;	// True if gravity force is to be applied on the fluid
+	bool					bodygravity;	// True if gravity force is to be applied on the bodies
 	std::vector<std::vector<Particle*>>	octree; // octree for detecting particles close to one another
-	bool					gravity;		// True if gravity force is to be applied
 	bool					wind;			// True if wind force is to be applied
 	bool					surfaceTension;	// True if surface tension force is to be applied
 	

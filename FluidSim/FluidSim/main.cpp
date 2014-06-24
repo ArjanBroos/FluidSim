@@ -200,6 +200,7 @@ void init() {
 
 	// Do initialization for simulation
 	AddParticles();
+	//fluidSimulator.box = AABoundingBox(glm::vec3(0.f, 0.f, 0.f), 20.f);
 }
 
 void DisplayNormal() {

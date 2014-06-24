@@ -30,6 +30,8 @@ public:
 	bool isGravity();
 	bool isSurfaceTension();
 
+	//AABoundingBox			box;
+
 private:
 	void		CalculateDensities();
 	void		CalculatePressures();

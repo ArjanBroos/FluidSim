@@ -249,6 +249,14 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 			// Reflect velocity with bounce factor in mind
 			p->velocity = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
 		}
+
+		/*if (box.Inside(p->position, cp, d, n)) {
+			glm::vec3 bounceV = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
+			// Put particle back at contact point
+			p->position = cp;
+			// Reflect velocity with bounce factor in mind
+			p->velocity = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n + box.velocity;
+		}*/
 	}
 }
 

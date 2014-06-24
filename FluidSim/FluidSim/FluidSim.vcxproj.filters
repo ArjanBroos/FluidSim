@@ -50,10 +50,16 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader.frag">
+    <None Include="shaders\blockShader.frag">
       <Filter>shaders</Filter>
     </None>
-    <None Include="shaders\shader.vert">
+    <None Include="shaders\blockShader.vert">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\splatShader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\splatShader.vert">
       <Filter>shaders</Filter>
     </None>
   </ItemGroup>

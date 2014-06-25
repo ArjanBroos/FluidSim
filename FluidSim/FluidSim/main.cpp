@@ -31,14 +31,12 @@ struct BlockProgram {
 
 struct SplatProgram {
 	GLuint program;
-	GLuint modelMatrixUniform;
-	GLuint viewMatrixUniform;
 	GLuint projectionMatrixUniform;
-	GLuint normalMatrixUniform;
-	GLuint vao;
-	GLuint vbo;
-	GLuint ibo;
-	GLuint nbo;
+	GLuint cameraLightDirUniform;	// Uniform ID for the light direction in camera space
+	GLuint vao;						// Vertex array object
+
+	GLuint cameraPositionUniform;	// Uniform ID for the sphere's center in camera space
+	GLuint sphereRadiusUniform;		// Uniform ID for the sphere's radius
 };
 
 BlockProgram blockProgram;
@@ -104,23 +102,6 @@ const glm::vec3 cubeNormals[] = {
 	glm::normalize(glm::vec3(1.f,	-1.f,	1.f)),	// right bottom front
 };
 
-// Hard code quad
-const float quadVertices[] = {
-	-0.5f,	0.5f,	0.f,	1.f,
-	0.5f,	0.5f,	0.f,	1.f,
-	0.5f,	-0.5f,	0.f,	1.f,
-	-0.5f,	-0.5f,	0.f,	1.f,
-};
-const GLshort quadIndices[] = {
-	0, 1, 2,	0, 2, 3,
-};
-const glm::vec3 quadNormals[] = {
-	glm::vec3(0.f, 0.f, 1.f),
-	glm::vec3(0.f, 0.f, 1.f),
-	glm::vec3(0.f, 0.f, 1.f),
-	glm::vec3(0.f, 0.f, 1.f),
-};
-
 // Sets some OpenGL states
 void InitOpenGL() {
 	glEnable(GL_CULL_FACE);
@@ -156,6 +137,7 @@ void InitBlockProgram() {
 	glUseProgram(0);
 }
 
+// Initializes the progam
 void InitSplatProgram() {
 	std::vector<GLuint> shaders;
 	shaders.push_back(Framework::LoadShader(GL_VERTEX_SHADER, "splatShader.vert"));
@@ -163,10 +145,12 @@ void InitSplatProgram() {
 
 	splatProgram.program = Framework::CreateProgram(shaders);
 
-	splatProgram.modelMatrixUniform = glGetUniformLocation(splatProgram.program, "modelMatrix");
-	splatProgram.viewMatrixUniform = glGetUniformLocation(splatProgram.program, "viewMatrix");
+	splatProgram.cameraLightDirUniform = glGetUniformLocation(splatProgram.program, "cameraLightDir");
 	splatProgram.projectionMatrixUniform = glGetUniformLocation(splatProgram.program, "projectionMatrix");
-	splatProgram.normalMatrixUniform = glGetUniformLocation(splatProgram.program, "normalMatrix");
+	splatProgram.cameraPositionUniform = glGetUniformLocation(splatProgram.program, "cameraSpherePos");
+	splatProgram.sphereRadiusUniform = glGetUniformLocation(splatProgram.program, "sphereRadius");
+
+	lightDir = glm::normalize(glm::vec3(1.f, -3.f, -2.f));
 }
 
 // Sets up our vertex buffer
@@ -191,23 +175,6 @@ void InitBlockVertexBuffer() {
 }
 
 void InitSplatVertexBuffer() {
-	// Vertices
-	glGenBuffers(1, &splatProgram.vbo);
-	glBindBuffer(GL_ARRAY_BUFFER, splatProgram.vbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), quadVertices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-	// Indices
-	glGenBuffers(1, &splatProgram.ibo);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, splatProgram.ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(quadIndices), quadIndices, GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-
-	// Normals
-	glGenBuffers(1, &splatProgram.nbo);
-	glBindBuffer(GL_ARRAY_BUFFER, splatProgram.nbo);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(quadNormals), quadNormals, GL_STATIC_DRAW);
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
 }
 
 // Sets up vertex array object
@@ -231,19 +198,6 @@ void InitBlockVAO() {
 // Sets up vertex array object
 void InitSplatVAO() {
 	glGenVertexArrays(1, &splatProgram.vao);
-	glBindVertexArray(splatProgram.vao);
-
-	glBindBuffer(GL_ARRAY_BUFFER, splatProgram.vbo);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, 0);
-	
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, splatProgram.ibo);
-
-	glBindBuffer(GL_ARRAY_BUFFER, splatProgram.nbo);
-	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0);
-
-	glBindVertexArray(0);
 }
 
 // Sets up model, view and projection matrices
@@ -345,23 +299,24 @@ void DisplaySplats() {
 	glUseProgram(splatProgram.program);
 	glBindVertexArray(splatProgram.vao);
 
-	// Set up view matrix
-	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
-	glUniformMatrix4fv(splatProgram.viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+	const float sphereRadius = 6.f;
 
-	const float particleScale = 3.f;
+	// Draw particles
+	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
+
 	std::vector<Particle*>& particles = fluidSimulator.GetParticles();
 	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
 		Particle* p = *pi;
-		modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(particleScale));
-		modelMatrix = glm::translate(modelMatrix, p->position / particleScale);
-		normalMatrix = glm::transpose(glm::inverse(viewMatrix * modelMatrix));
-		glUniformMatrix4fv(splatProgram.modelMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelMatrix));
-		glUniformMatrix4fv(splatProgram.normalMatrixUniform, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+		
+		glm::vec3 cameraPosition = glm::vec3(viewMatrix * glm::vec4(p->position, 1.f));
+		glm::vec3 cameraLightDir = glm::vec3(viewMatrix * glm::vec4(lightDir, 0.f));
 
-		glDrawElements(GL_TRIANGLES, sizeof(quadIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
+		glUniform3fv(splatProgram.cameraLightDirUniform, 1, glm::value_ptr(cameraLightDir));
+		glUniform3fv(splatProgram.cameraPositionUniform, 1, glm::value_ptr(cameraPosition)); 
+		glUniform1f(splatProgram.sphereRadiusUniform, sphereRadius);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 	}
-
+	
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
@@ -407,8 +362,8 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'b') { fluidSimulator.ToggleBodyGravity(); }
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
-	if (key == 'i'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 0.f, 1.f); }
-	if (key == 'k'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 0.f, 1.f); }
+	if (key == 'i'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 2.f, 0.f); }
+	if (key == 'k'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 2.f, 0.f); }
 	// Toggle surface tension force with S key
 	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
 }
@@ -418,6 +373,8 @@ void reshape(int width, int height) {
 	windowWidth = width;
 	windowHeight = height;
 	projectionMatrix = glm::perspective(fovy, (float)width / (float)height, zNear, zFar);
+	glUseProgram(splatProgram.program);
 	glUniformMatrix4fv(splatProgram.projectionMatrixUniform, 1, GL_FALSE, glm::value_ptr(projectionMatrix));
+	glUseProgram(0);
 	glViewport(0, 0, width, height);
 }

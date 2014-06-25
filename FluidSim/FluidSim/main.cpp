@@ -112,6 +112,9 @@ void InitOpenGL() {
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
+
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 }
 
 // Initializes the progam
@@ -299,7 +302,7 @@ void DisplaySplats() {
 	glUseProgram(splatProgram.program);
 	glBindVertexArray(splatProgram.vao);
 
-	const float sphereRadius = 6.f;
+	const float sphereRadius = 8.f;
 
 	// Draw particles
 	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));

@@ -132,6 +132,7 @@ void InitOpenGL() {
 	glDepthMask(GL_TRUE);
 	glDepthFunc(GL_LEQUAL);
 	glDepthRange(0.0f, 1.0f);
+	glClearDepth(1.f);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
@@ -421,11 +422,10 @@ void DisplayBody() {
 void display() {
 	int startRender = glutGet(GLUT_ELAPSED_TIME);
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glClearDepth(1.f);
 
 	//DisplayBlocks();
-	DisplayBoundingBox();
 	DisplayBody();
+	DisplayBoundingBox();
 	DisplaySplats();
 
 	glutSwapBuffers();
@@ -461,8 +461,8 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'b') { fluidSimulator.ToggleBodyGravity(); }
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
-	if (key == 'i'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 2.f, 0.f); }
-	if (key == 'k'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 2.f, 0.f); }
+	if (key == 'i'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 4.f, 0.f); }
+	if (key == 'k'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 4.f, 0.f); }
 	// Toggle surface tension force with S key
 	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
 	// Pause simulation with P key

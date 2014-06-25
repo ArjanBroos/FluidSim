@@ -24,5 +24,6 @@ public:
 	float back;
 	float front;
 
-	glm::vec3	velocity;
+	glm::vec3   center;
+	float		size;
 };

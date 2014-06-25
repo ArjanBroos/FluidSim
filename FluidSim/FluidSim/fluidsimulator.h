@@ -17,8 +17,8 @@ public:
 	void AddParticles(const std::vector<Particle*>& particles);
 
 	// This class takes ownership of the body pointers and will be the one to destroy them
-	void AddBody(body* body);
-	void AddBodies(const std::vector<body*>& body);
+	void AddBody(Body* body);
+	void AddBodies(const std::vector<Body*>& bodies);
 
 	void ToggleFluidGravity();
 	void ToggleBodyGravity();
@@ -32,8 +32,9 @@ public:
 	void Clear();
 
 	std::vector<Particle*>&	GetParticles();
-	std::vector<body*>&	GetBodies();
-	body* movingBody;
+	std::vector<Body*>&	GetBodies();
+	AABoundingBox& GetBoundingBox() { return boundingBox; }
+	Body* movingBody;
 
 	bool isWind();
 	bool isGravity();
@@ -61,7 +62,7 @@ private:
 
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid
-	std::vector<body*>		bodies;			// The bodies in the simulation
+	std::vector<Body*>		bodies;			// The bodies in the simulation
 	bool					fluidgravity;	// True if gravity force is to be applied on the fluid
 	bool					bodygravity;	// True if gravity force is to be applied on the bodies
 	std::vector<std::vector<Particle*>>	octree; // octree for detecting particles close to one another

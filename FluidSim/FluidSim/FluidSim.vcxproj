@@ -85,13 +85,15 @@
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\basicShader.frag" />
+    <None Include="shaders\basicShader.vert" />
     <None Include="shaders\blockShader.frag" />
     <None Include="shaders\blockShader.vert" />
     <None Include="shaders\splatShader.frag" />
     <None Include="shaders\splatShader.vert" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Body.h" />
+    <ClInclude Include="body.h" />
     <ClInclude Include="boundingbox.h" />
     <ClInclude Include="fluidsimulator.h" />
     <ClInclude Include="framework.h" />

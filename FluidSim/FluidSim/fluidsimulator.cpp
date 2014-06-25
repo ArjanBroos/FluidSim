@@ -48,6 +48,7 @@ std::vector<Particle*> FluidSimulator::GetParticles(Particle* pi, std::vector<Pa
 			}
 		}
 	}
+	return std::vector<Particle*>(); // TEMP FIX
 }
 
 // This class takes ownership of the particle pointers and will be the one to destroy them
@@ -61,12 +62,12 @@ void FluidSimulator::AddParticles(const std::vector<Particle*>& particles) {
 }
 
 // This class takes ownership of the body pointers and will be the one to destroy them
-void FluidSimulator::AddBody(body* body) {
+void FluidSimulator::AddBody(Body* body) {
 	bodies.push_back(body);
 	movingBody = body;
 }
 
-void FluidSimulator::AddBodies(const std::vector<body*>& bodies) {
+void FluidSimulator::AddBodies(const std::vector<Body*>& bodies) {
 	for (auto pi = bodies.begin(); pi != bodies.end(); pi++)
 		this->bodies.push_back(*pi);
 }
@@ -105,7 +106,7 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 		p->velocity += (p->forceAccum / p->mass) * dt;
 	}
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-		body* b = *bi;
+		Body* b = *bi;
 		b->position += b->velocity * dt;
 		b->velocity += (b->forceAccum / b->mass) * dt;
 	}
@@ -130,7 +131,7 @@ std::vector<Particle*>&	FluidSimulator::GetParticles() {
 	return particles;
 }
 
-std::vector<body*>&	FluidSimulator::GetBodies() {
+std::vector<Body*>&	FluidSimulator::GetBodies() {
 	return bodies;
 }
 
@@ -256,7 +257,7 @@ void FluidSimulator::ApplyGravityForces() {
 	}
 	if (bodygravity){
 		for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-			body* b = *bi;
+			Body* b = *bi;
 			b->forceAccum += b->mass * gv;
 		}
 	}
@@ -301,18 +302,18 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 	static const float sElasticity = bounce;
 	static const float sImpactCoefficient = 1.0f + sElasticity;
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-		body* rigidBody = *bi;
+		Body* rigidBody = *bi;
 		const glm::vec3 & physObjVelocity = rigidBody->GetVelocity();
 		for (auto pi = particles.begin(); pi != particles.end(); pi++) {
 			Particle* particle = *pi;
-			if (rigidBody->collision(particle->position, cp, d, n)){
+			if (rigidBody->Collision(particle->position, cp, d, n)){
 				const glm::vec3  vVelDueToRotAtConPt = rigidBody->GetAngularVelocity(cp);
 				const glm::vec3  vVelBodyAtConPt = physObjVelocity + vVelDueToRotAtConPt;
 				const glm::vec3  velRelative = particle->velocity - vVelBodyAtConPt;
 				const glm::vec3  speedNormal = velRelative * n; // Contact normal depends on geometry.
 				const glm::vec3  impulse = -speedNormal * n; // Minus: speedNormal is negative.
 				particle->velocity = particle->velocity + impulse * sImpactCoefficient;
-				particle->position = rigidBody->absoluteContactPoint(cp);
+				particle->position = rigidBody->AbsoluteContactPoint(cp);
 			}
 		}
 	}

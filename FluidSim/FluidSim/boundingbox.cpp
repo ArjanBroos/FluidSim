@@ -3,13 +3,14 @@
 
 AABoundingBox::AABoundingBox() :
 	left(-100.f), bottom(-100.f), back(-100.f),
-	right(100.f), top(100.f), front(100.f), velocity(glm::vec3(0.f, 0.f, 0.f)) {
+	right(100.f), top(100.f), front(100.f),
+	center(glm::vec3(0.f, 0.f, 0.f)), size(200.f) {
 }
 
 AABoundingBox::AABoundingBox(const glm::vec3& center, float size) :
 	left(center.x - size/2.f), bottom(center.y - size/2.f), back(center.z - size/2.f),
 	right(center.x + size/2.f), top(center.y + size/2.f), front(center.z + size/2.f),
-	velocity(glm::vec3(0.f, 0.f, 0.f)) {
+	center(center), size(size) {
 }
 
 // Checks if position is outside the bounding box

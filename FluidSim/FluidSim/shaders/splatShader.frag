@@ -4,6 +4,8 @@ uniform vec3 cameraSpherePos;
 uniform float sphereRadius;
 uniform vec3 cameraLightDir;
 uniform mat4 projectionMatrix;
+uniform vec3 baseColor;
+uniform float opaqueness;
 
 in vec2 mapping;
 out vec4 outputColor;
@@ -18,7 +20,6 @@ void main() {
 	vec3 cameraPos = (cameraNormal * sphereRadius) + cameraSpherePos;
 	
 	// Calculate lighting
-	vec3 color = vec3(0.1, 0.1, 1);
 	float ambient = 0.2f;
 	float diffuse = max(0, dot(cameraNormal, -cameraLightDir));
 
@@ -29,5 +30,5 @@ void main() {
 		+ gl_DepthRange.near + gl_DepthRange.far) / 2;
 
 	// Output fragment color
-	outputColor = vec4(color * (ambient + diffuse), 0.5);
+	outputColor = vec4(baseColor * (ambient + diffuse), opaqueness);
 }

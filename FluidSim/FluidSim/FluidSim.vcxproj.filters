@@ -62,6 +62,12 @@
     <None Include="shaders\splatShader.vert">
       <Filter>shaders</Filter>
     </None>
+    <None Include="shaders\basicShader.frag">
+      <Filter>shaders</Filter>
+    </None>
+    <None Include="shaders\basicShader.vert">
+      <Filter>shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -82,10 +88,10 @@
     <ClInclude Include="util.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Body.h">
+    <ClInclude Include="sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sphere.h">
+    <ClInclude Include="body.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

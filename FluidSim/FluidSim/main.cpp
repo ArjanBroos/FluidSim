@@ -12,6 +12,7 @@ int windowHeight = 600;			// Height of the window
 const float fovy = 60.f;		// Vertical field of view in degrees
 const float zNear = 0.1f;		// Near plane
 const float zFar = 1000.f;		// Far plane
+bool paused = false;
 
 struct BlockProgram {
 	GLuint program;
@@ -346,7 +347,8 @@ void simulate() {
 	float dt = (float)(simTime + renderTime) / 1000.f;
 	fps = 1.f / dt;
 
-	fluidSimulator.ExplicitEulerStep(0.1f);
+	if (!paused)
+		fluidSimulator.ExplicitEulerStep(0.1f);
 
 	// Start drawing again
 	glutPostRedisplay();
@@ -369,6 +371,8 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'k'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 2.f, 0.f); }
 	// Toggle surface tension force with S key
 	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
+	// Pause simulation with P key
+	if (key == 'p') { paused = !paused; }
 }
 
 // Handles reshaping of the window

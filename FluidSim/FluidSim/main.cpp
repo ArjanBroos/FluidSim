@@ -270,7 +270,7 @@ void InitBasicVAO() {
 // Sets up model, view and projection matrices
 void InitMatrices() {
 	glm::vec3 up(0.f, 1.f, 0.f);
-	cameraPosition = glm::vec3(-40.f, -80.f, 130.f);
+	cameraPosition = glm::vec3(-40.f, 80.f, 130.f);
 	cameraLookAt = glm::vec3(0.f, 0.f, 0.f);
 
 	modelMatrix = glm::mat4(1.f);

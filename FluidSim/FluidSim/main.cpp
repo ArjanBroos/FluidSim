@@ -191,7 +191,7 @@ void AddParticles() {
 }
 
 void AddBodies() {
-	fluidSimulator.AddBody(new sphere(glm::vec3(0.f, 70.f, 0.f),40.0));
+	fluidSimulator.AddBody(new sphere(glm::vec3(0.f, 70.f, 0.f),30.0, 5.f));
 }
 
 // Initializes our application
@@ -235,6 +235,7 @@ void DisplayNormal() {
 	}
 
 
+	glUniform4f(ambientUniform, 0.05f, 0.2f, 0.05f, 1.f);
 	std::vector<body*>& bodies = fluidSimulator.GetBodies();
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
 		body* b = *bi;
@@ -295,8 +296,8 @@ void keyboard(unsigned char key, int x, int y) {
 	if (key == 'b') { fluidSimulator.ToggleBodyGravity(); }
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
-	if (key == 'i'){ fluidSimulator.movingBody->position -= glm::vec3(0.f, 0.f, 1.f); }
-	if (key == 'k'){ fluidSimulator.movingBody->position += glm::vec3(0.f, 0.f, 1.f); }
+	if (key == 'i'){ fluidSimulator.movingBody->center -= glm::vec3(0.f, 0.f, 1.f); }
+	if (key == 'k'){ fluidSimulator.movingBody->center += glm::vec3(0.f, 0.f, 1.f); }
 	// Toggle surface tension force with S key
 	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
 }

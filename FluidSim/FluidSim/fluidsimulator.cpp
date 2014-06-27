@@ -7,7 +7,7 @@
 const float h = 25.f;			// SPH radius
 const float k = 3e8f;			// Pressure constant
 const float mu = 6e4f;			// Viscosity constant
-const float bounce = 0.2f;		// Collision response factor
+const float bounce = 0.4f;		// Collision response factor
 const float sigma = 10.f;		// Surface tension coefficient
 
 FluidSimulator::FluidSimulator(const AABoundingBox& boundingBox) {
@@ -98,6 +98,9 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 	// Apply forces
 	ApplyAllForces();
 
+	// Fix collisions
+	DetectAndRespondCollisions(dt);
+
 	// Update positions and velocity
 	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
 		Particle* p = *pi;
@@ -106,12 +109,10 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 	}
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
 		body* b = *bi;
-		b->position += b->velocity * dt;
+		b->center += b->velocity * dt;
 		b->velocity += (b->forceAccum / b->mass) * dt;
 	}
 
-	// Fix collisions
-	DetectAndRespondCollisions(dt);
 }
 
 // Removes all particles
@@ -277,38 +278,43 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 	float		d;	// Penetration depth
 	glm::vec3	n;	// Normal at point of collision
 
-	for (auto pi = particles.begin(); pi != particles.end(); pi++) {
-		Particle* p = *pi;
+	std::vector<Particle*> possiblyColliding=particles;
+	
 
-		// If a collision was detected
-		if (boundingBox.Outside(p->position, cp, d, n)) {
-			glm::vec3 bounceV = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
-			// Put particle back at contact point
-			p->position = cp;
-			// Reflect velocity with bounce factor in mind
-			p->velocity = p->velocity - (1.f + bounce) * glm::dot(p->velocity, n) * n;
-		}
-	}
-
-	static const float sElasticity = bounce;
-	static const float sImpactCoefficient = 1.0f + sElasticity;
-	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-		body* rigidBody = *bi;
-		const glm::vec3 & physObjVelocity = rigidBody->GetVelocity();
-		for (auto pi = particles.begin(); pi != particles.end(); pi++) {
+	static const float sImpactCoefficient = 1.0f + bounce;
+	while (possiblyColliding.size() > 0){
+		std::vector<Particle*> newColliding;
+		for (auto pi = possiblyColliding.begin(); pi != possiblyColliding.end(); pi++) {
 			Particle* particle = *pi;
-			if (rigidBody->collision(particle->position, cp, d, n)){
-				const glm::vec3  vVelDueToRotAtConPt = rigidBody->GetAngularVelocity(cp);
-				const glm::vec3  vVelBodyAtConPt = physObjVelocity + vVelDueToRotAtConPt;
-				const glm::vec3  velRelative = particle->velocity - vVelBodyAtConPt;
-				const glm::vec3  speedNormal = velRelative * n; // Contact normal depends on geometry.
-				const glm::vec3  impulse = -speedNormal * n; // Minus: speedNormal is negative.
-				particle->velocity = particle->velocity + impulse * sImpactCoefficient;
-				particle->position = rigidBody->absoluteContactPoint(cp);
+			particle->collision = false;
+			// If a collision was detected
+			if (boundingBox.Outside(particle->position + particle->velocity*dt, cp, d, n)) {
+				// Reflect velocity with bounce factor in mind
+				particle->velocity = particle->velocity - sImpactCoefficient * glm::dot(particle->velocity, n) * n;
+				particle->collision = true;
+			}
+
+			for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
+				body* rigidBody = *bi;
+				const glm::vec3 & physObjVelocity = rigidBody->GetVelocity();
+				if (rigidBody->collision(particle->position, (particle->velocity - physObjVelocity), cp, d, n)){
+					const glm::vec3  vVelDueToRotAtConPt = rigidBody->GetAngularVelocity(cp);
+					const glm::vec3  vVelBodyAtConPt = physObjVelocity + vVelDueToRotAtConPt;
+					const glm::vec3  velRelative = particle->velocity - vVelBodyAtConPt;
+					const float  speedNormal = glm::dot(velRelative, n); // Contact normal depends on geometry.
+					const glm::vec3  impulse = -speedNormal * n; // Minus: speedNormal is negative.
+					particle->velocity = particle->velocity + impulse * sImpactCoefficient;
+					particle->collision = true;
+				}
+			}
+			if (particle->collision){
+				newColliding.push_back(particle);
 			}
 		}
+		possiblyColliding.clear();
+		possiblyColliding = newColliding;
+		newColliding.clear();
 	}
-
 }
 
 float FluidSimulator::csGradient(float cs) {

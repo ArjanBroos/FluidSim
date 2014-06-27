@@ -6,9 +6,10 @@
 
 
 
-sphere::sphere(glm::vec3 pos, float size){
-	position = pos;
+sphere::sphere(glm::vec3 pos, float size, float m){
+	center = pos;
 	this->size = size;
+	mass = m;
 }
 
 const GLshort cubeIndices[] = {
@@ -30,7 +31,7 @@ glm::mat4 mvpMatrix,
 glm::mat4 modelViewMatrix,		
 glm::mat4 normalMatrix			){
 	modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(size, size, size));
-	modelMatrix = glm::translate(modelMatrix, position / size);
+	modelMatrix = glm::translate(modelMatrix, center / size);
 	mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
 	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
 	modelViewMatrix = viewMatrix * modelMatrix;
@@ -53,18 +54,45 @@ glm::vec3 sphere::contactNormal(){
 	return glm::vec3(0.f, 0.f, 0.f);
 }
 
-bool sphere::collision(const glm::vec3& parposition, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
-	penDepth = size - sqrt((position[0] - parposition[0])*(position[0] - parposition[0]) + (position[1] - parposition[1])*(position[1] - parposition[1]) + (position[2] - parposition[2])*(position[2] - parposition[2]));
-	if ( penDepth > 0) {
-		normal = (parposition - position) / glm::length((parposition - position));
-		contactPoint = normal*size;
-		return true;
+bool sphere::collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
+	glm::vec3 pos = position - center;
+	float A = displacement[0] * displacement[0] + displacement[1] * displacement[1] + displacement[2] * displacement[2];
+	float B = 2*pos[0] * displacement[0] + 2* pos[1] * displacement[1] + 2* pos[2] * displacement[2];
+	float C = pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2] - (size*size);
+	float D = B*B - 4 * A * C;
+	if (D<=0||A==0){
+		if (A==0){
+			printf("%d\n", rand());
+		}
+		return false;
+	}
+	float ans1 = (-B + sqrt(D)) / (2 * A);
+	float ans2 = (-B - sqrt(D)) / (2 * A);
+	float ans;
+
+	if (0>ans1||ans1>1) {
+		if (0>ans2 || ans2>1){
+			return false;
+		}
+		else{
+			ans = ans2;
+		}
+	}
+	else{
+		if (0>ans2 || ans2>1){
+			ans = ans1;
+		}
+		else{
+			ans = min(ans1,ans2);
+		}
 	}
 
-	return false;
+	contactPoint = (pos + (displacement*ans));
+	normal = contactPoint / size;
+	return true;
 }
 
 glm::vec3 sphere::absoluteContactPoint(glm::vec3& relposition){
-	return position + relposition;
+	return center + relposition;
 
 }

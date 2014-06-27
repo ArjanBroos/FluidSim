@@ -6,7 +6,7 @@
 // Axis aligned bounding box for the particles to stay within
 class sphere : public body {
 public:
-	sphere(glm::vec3 pos, float size);
+	sphere(glm::vec3 pos, float size, float m);
 
 	void draw(GLuint mvpMatrixUniform,
 		GLuint modelViewMatrixUniform,
@@ -22,7 +22,7 @@ public:
 	glm::vec3 contactNormal();
 	glm::vec3 absoluteContactPoint(glm::vec3& relposition);
 
-	bool collision(const glm::vec3& parposition, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal);
+	bool collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal);
 
 	float size;
 };

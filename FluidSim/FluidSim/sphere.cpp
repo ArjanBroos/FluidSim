@@ -46,14 +46,15 @@ glm::vec3 sphere::GetAngularVelocity(glm::vec3 contactpoint){
 	return glm::vec3(0.f,0.f,0.f); 
 }
 
-glm::vec3 sphere::GetVelocity(){
+glm::vec3 Sphere::GetVelocity(){
 	return velocity; 
 }
 
-glm::vec3 sphere::contactNormal(){
+glm::vec3 Sphere::ContactNormal(){
 	return glm::vec3(0.f, 0.f, 0.f);
 }
 
+<<<<<<< HEAD
 bool sphere::collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
 	glm::vec3 pos = position - center;
 	float A = displacement[0] * displacement[0] + displacement[1] * displacement[1] + displacement[2] * displacement[2];
@@ -65,6 +66,14 @@ bool sphere::collision(const glm::vec3& position, const glm::vec3& displacement,
 			printf("%d\n", rand());
 		}
 		return false;
+=======
+bool Sphere::Collision(const glm::vec3& parposition, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
+	penDepth = size - sqrt((position[0] - parposition[0])*(position[0] - parposition[0]) + (position[1] - parposition[1])*(position[1] - parposition[1]) + (position[2] - parposition[2])*(position[2] - parposition[2]));
+	if ( penDepth > 0) {
+		normal = (parposition - position) / glm::length((parposition - position));
+		contactPoint = normal*size;
+		return true;
+>>>>>>> origin/master
 	}
 	float ans1 = (-B + sqrt(D)) / (2 * A);
 	float ans2 = (-B - sqrt(D)) / (2 * A);
@@ -92,7 +101,12 @@ bool sphere::collision(const glm::vec3& position, const glm::vec3& displacement,
 	return true;
 }
 
+<<<<<<< HEAD
 glm::vec3 sphere::absoluteContactPoint(glm::vec3& relposition){
 	return center + relposition;
+=======
+glm::vec3 Sphere::AbsoluteContactPoint(glm::vec3& relposition){
+	return position + relposition;
+>>>>>>> origin/master
 
 }

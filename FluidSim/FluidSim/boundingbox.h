@@ -14,6 +14,7 @@ public:
 	// penDepth - penetration depth
 	// normal - normal of the boundingbox at the point of intersection
 	bool Outside(const glm::vec3& position, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal) const;
+	bool Inside(const glm::vec3& position, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal) const;
 
 	// Axis planes
 	float left;
@@ -22,4 +23,7 @@ public:
 	float top;
 	float back;
 	float front;
+
+	glm::vec3   center;
+	float		size;
 };

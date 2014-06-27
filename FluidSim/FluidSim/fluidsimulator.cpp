@@ -48,6 +48,7 @@ std::vector<Particle*> FluidSimulator::GetParticles(Particle* pi, std::vector<Pa
 			}
 		}
 	}
+	return std::vector<Particle*>(); // TEMP FIX
 }
 
 // This class takes ownership of the particle pointers and will be the one to destroy them
@@ -61,12 +62,12 @@ void FluidSimulator::AddParticles(const std::vector<Particle*>& particles) {
 }
 
 // This class takes ownership of the body pointers and will be the one to destroy them
-void FluidSimulator::AddBody(body* body) {
+void FluidSimulator::AddBody(Body* body) {
 	bodies.push_back(body);
 	movingBody = body;
 }
 
-void FluidSimulator::AddBodies(const std::vector<body*>& bodies) {
+void FluidSimulator::AddBodies(const std::vector<Body*>& bodies) {
 	for (auto pi = bodies.begin(); pi != bodies.end(); pi++)
 		this->bodies.push_back(*pi);
 }
@@ -108,6 +109,7 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 		p->velocity += (p->forceAccum / p->mass) * dt;
 	}
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
+
 		body* b = *bi;
 		b->center += b->velocity * dt;
 		b->velocity += (b->forceAccum / b->mass) * dt;
@@ -131,7 +133,7 @@ std::vector<Particle*>&	FluidSimulator::GetParticles() {
 	return particles;
 }
 
-std::vector<body*>&	FluidSimulator::GetBodies() {
+std::vector<Body*>&	FluidSimulator::GetBodies() {
 	return bodies;
 }
 
@@ -257,7 +259,7 @@ void FluidSimulator::ApplyGravityForces() {
 	}
 	if (bodygravity){
 		for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-			body* b = *bi;
+			Body* b = *bi;
 			b->forceAccum += b->mass * gv;
 		}
 	}
@@ -277,6 +279,7 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 	glm::vec3	cp;	// Point of collision
 	float		d;	// Penetration depth
 	glm::vec3	n;	// Normal at point of collision
+
 
 	std::vector<Particle*> possiblyColliding=particles;
 	
@@ -315,6 +318,8 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 		possiblyColliding = newColliding;
 		newColliding.clear();
 	}
+
+
 }
 
 float FluidSimulator::csGradient(float cs) {

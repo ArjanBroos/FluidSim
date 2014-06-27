@@ -110,7 +110,7 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 	}
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
 
-		body* b = *bi;
+		Body* b = *bi;
 		b->center += b->velocity * dt;
 		b->velocity += (b->forceAccum / b->mass) * dt;
 	}
@@ -298,7 +298,7 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 			}
 
 			for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-				body* rigidBody = *bi;
+				Body* rigidBody = *bi;
 				const glm::vec3 & physObjVelocity = rigidBody->GetVelocity();
 				if (rigidBody->collision(particle->position, (particle->velocity - physObjVelocity), cp, d, n)){
 					const glm::vec3  vVelDueToRotAtConPt = rigidBody->GetAngularVelocity(cp);

@@ -270,7 +270,7 @@ void InitBasicVAO() {
 // Sets up model, view and projection matrices
 void InitMatrices() {
 	glm::vec3 up(0.f, 1.f, 0.f);
-	cameraPosition = glm::vec3(-40.f, 80.f, 130.f);
+	cameraPosition = glm::vec3(-40.f, -80.f, 130.f);
 	cameraLookAt = glm::vec3(0.f, 0.f, 0.f);
 
 	modelMatrix = glm::mat4(1.f);
@@ -297,7 +297,7 @@ void AddParticles() {
 }
 
 void AddBodies() {
-	fluidSimulator.AddBody(new sphere(glm::vec3(0.f, 70.f, 0.f),30.0, 5.f));
+	fluidSimulator.AddBody(new Sphere(glm::vec3(0.f, 70.f, 0.f),30.0, 5.f));
 
 }
 
@@ -357,19 +357,6 @@ void DisplaySplats() {
 
 	const float sphereRadius = 8.f;
 
-	glUniform4f(ambientUniform, 0.05f, 0.2f, 0.05f, 1.f);
-	std::vector<body*>& bodies = fluidSimulator.GetBodies();
-	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-		body* b = *bi;
-		b->draw(mvpMatrixUniform,
-			modelViewMatrixUniform,
-			normalMatrixUniform,
-			modelMatrix,
-			viewMatrix,
-			projectionMatrix,
-			mvpMatrix,
-			modelViewMatrix,
-			normalMatrix);
 	// Draw particles
 	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
 	glm::vec3 cameraLightDir = glm::vec3(viewMatrix * glm::vec4(lightDir, 0.f));
@@ -420,7 +407,7 @@ void DisplayBody() {
 	glm::vec3 cameraLightDir = glm::vec3(viewMatrix * glm::vec4(lightDir, 0.f));
 
 	const Sphere* sphere = (Sphere*)fluidSimulator.movingBody;
-	glm::vec3 cameraPosition = glm::vec3(viewMatrix * glm::vec4(sphere->position, 1.f));
+	glm::vec3 cameraPosition = glm::vec3(viewMatrix * glm::vec4(sphere->center, 1.f));
 
 	glUniform3fv(splatProgram.cameraLightDirUniform, 1, glm::value_ptr(cameraLightDir));
 	glUniform3fv(splatProgram.cameraPositionUniform, 1, glm::value_ptr(cameraPosition)); 

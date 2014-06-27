@@ -6,43 +6,13 @@
 
 
 
-sphere::sphere(glm::vec3 pos, float size, float m){
+Sphere::Sphere(glm::vec3 pos, float size, float m){
 	center = pos;
 	this->size = size;
 	mass = m;
 }
 
-const GLshort cubeIndices[] = {
-	2, 3, 6, 3, 7, 6,	// Front face
-	0, 4, 5, 1, 0, 5,	// Back face
-	0, 1, 2, 1, 3, 2,	// Top face
-	6, 7, 5, 6, 5, 4,	// Bottom face
-	0, 2, 4, 2, 6, 4,	// Left face
-	3, 1, 5, 3, 5, 7,	// Right face
-};
-
-void sphere::draw( GLuint mvpMatrixUniform,		
-GLuint modelViewMatrixUniform,	
-GLuint normalMatrixUniform,		
-glm::mat4 modelMatrix,			
-glm::mat4 viewMatrix,			
-glm::mat4 projectionMatrix,	
-glm::mat4 mvpMatrix,			
-glm::mat4 modelViewMatrix,		
-glm::mat4 normalMatrix			){
-	modelMatrix = glm::scale(glm::mat4(1.f), glm::vec3(size, size, size));
-	modelMatrix = glm::translate(modelMatrix, center / size);
-	mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
-	glUniformMatrix4fv(mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
-	modelViewMatrix = viewMatrix * modelMatrix;
-	glUniformMatrix4fv(modelViewMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
-	normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
-	glUniformMatrix4fv(normalMatrixUniform, 1, GL_FALSE, glm::value_ptr(normalMatrix));
-
-	glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
-}
-
-glm::vec3 sphere::GetAngularVelocity(glm::vec3 contactpoint){
+glm::vec3 Sphere::GetAngularVelocity(glm::vec3 contactpoint){
 	return glm::vec3(0.f,0.f,0.f); 
 }
 
@@ -54,8 +24,8 @@ glm::vec3 Sphere::ContactNormal(){
 	return glm::vec3(0.f, 0.f, 0.f);
 }
 
-<<<<<<< HEAD
-bool sphere::collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
+
+bool Sphere::collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
 	glm::vec3 pos = position - center;
 	float A = displacement[0] * displacement[0] + displacement[1] * displacement[1] + displacement[2] * displacement[2];
 	float B = 2*pos[0] * displacement[0] + 2* pos[1] * displacement[1] + 2* pos[2] * displacement[2];
@@ -66,14 +36,6 @@ bool sphere::collision(const glm::vec3& position, const glm::vec3& displacement,
 			printf("%d\n", rand());
 		}
 		return false;
-=======
-bool Sphere::Collision(const glm::vec3& parposition, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
-	penDepth = size - sqrt((position[0] - parposition[0])*(position[0] - parposition[0]) + (position[1] - parposition[1])*(position[1] - parposition[1]) + (position[2] - parposition[2])*(position[2] - parposition[2]));
-	if ( penDepth > 0) {
-		normal = (parposition - position) / glm::length((parposition - position));
-		contactPoint = normal*size;
-		return true;
->>>>>>> origin/master
 	}
 	float ans1 = (-B + sqrt(D)) / (2 * A);
 	float ans2 = (-B - sqrt(D)) / (2 * A);
@@ -101,12 +63,8 @@ bool Sphere::Collision(const glm::vec3& parposition, glm::vec3& contactPoint, fl
 	return true;
 }
 
-<<<<<<< HEAD
-glm::vec3 sphere::absoluteContactPoint(glm::vec3& relposition){
-	return center + relposition;
-=======
+
 glm::vec3 Sphere::AbsoluteContactPoint(glm::vec3& relposition){
-	return position + relposition;
->>>>>>> origin/master
+	return center + relposition;
 
 }

@@ -6,7 +6,7 @@
 // Axis aligned bounding box for the particles to stay within
 class Sphere : public Body {
 public:
-	sphere(glm::vec3 pos, float size, float m);
+	Sphere(glm::vec3 pos, float size, float m);
 
 	glm::vec3 GetAngularVelocity(glm::vec3 contactpoint);
 	glm::vec3 GetVelocity();

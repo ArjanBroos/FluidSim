@@ -285,7 +285,8 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 	
 
 	static const float sImpactCoefficient = 1.0f + bounce;
-	while (possiblyColliding.size() > 0){
+	int x = 0;
+	while (possiblyColliding.size() > 0 &&x++<100){
 		std::vector<Particle*> newColliding;
 		for (auto pi = possiblyColliding.begin(); pi != possiblyColliding.end(); pi++) {
 			Particle* particle = *pi;
@@ -306,8 +307,12 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 					const glm::vec3  velRelative = particle->velocity - vVelBodyAtConPt;
 					const float  speedNormal = glm::dot(velRelative, n); // Contact normal depends on geometry.
 					const glm::vec3  impulse = -speedNormal * n; // Minus: speedNormal is negative.
+					
 					particle->velocity = particle->velocity + impulse * sImpactCoefficient;
 					particle->collision = true;
+					if (bodygravity){
+						rigidBody->velocity += -impulse / rigidBody->mass;
+					}
 				}
 			}
 			if (particle->collision){

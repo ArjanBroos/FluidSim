@@ -297,7 +297,8 @@ void AddParticles() {
 }
 
 void AddBodies() {
-	fluidSimulator.AddBody(new Sphere(glm::vec3(0.f, 70.f, 0.f),30.0, 5.f));
+	fluidSimulator.AddBody(new Sphere(glm::vec3(20.f, 70.f, 20.f),20.0, 10.f));
+	fluidSimulator.AddBody(new Sphere(glm::vec3(-20.f, 70.f, -20.f), 20.0, 3.f));
 
 }
 
@@ -405,17 +406,20 @@ void DisplayBody() {
 
 	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
 	glm::vec3 cameraLightDir = glm::vec3(viewMatrix * glm::vec4(lightDir, 0.f));
+	std::vector<Body*> bodies = fluidSimulator.GetBodies();
+	for (auto bi = bodies.begin(); bi != bodies.end(); bi++){
+		const Sphere* sphere = (Sphere*)*bi;
+		if (sphere!=0){
+			glm::vec3 cameraPosition = glm::vec3(viewMatrix * glm::vec4(sphere->center, 1.f));
 
-	const Sphere* sphere = (Sphere*)fluidSimulator.movingBody;
-	glm::vec3 cameraPosition = glm::vec3(viewMatrix * glm::vec4(sphere->center, 1.f));
-
-	glUniform3fv(splatProgram.cameraLightDirUniform, 1, glm::value_ptr(cameraLightDir));
-	glUniform3fv(splatProgram.cameraPositionUniform, 1, glm::value_ptr(cameraPosition)); 
-	glUniform1f(splatProgram.sphereRadiusUniform, sphere->size);
-	glUniform3f(splatProgram.baseColorUniform, 0.f, 1.f, 0.f);
-	glUniform1f(splatProgram.opaquenessUniform, 1.f);
-	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
+			glUniform3fv(splatProgram.cameraLightDirUniform, 1, glm::value_ptr(cameraLightDir));
+			glUniform3fv(splatProgram.cameraPositionUniform, 1, glm::value_ptr(cameraPosition));
+			glUniform1f(splatProgram.sphereRadiusUniform, sphere->size);
+			glUniform3f(splatProgram.baseColorUniform, 0.f, 1.f, 0.f);
+			glUniform1f(splatProgram.opaquenessUniform, 1.f);
+			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		}
+	}
 	glBindVertexArray(0);
 	glUseProgram(0);
 }

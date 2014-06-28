@@ -7,6 +7,7 @@ const float standardMass = 1.f;
 const float standardDensity = 0.f;
 const float standardRestDensity = 1.f;
 const float standardPressure = 0.f;
+const int standardHash = -1;
 
 Particle::Particle() :
 	position(standardPosition),
@@ -15,7 +16,8 @@ Particle::Particle() :
 	mass(standardMass),
 	density(standardDensity),
 	restDensity(standardRestDensity),
-	pressure(standardPressure) {
+	pressure(standardPressure),
+	hashOctree(standardHash) {
 }
 
 Particle::Particle(const glm::vec3& position) :
@@ -25,7 +27,8 @@ Particle::Particle(const glm::vec3& position) :
 	mass(standardMass),
 	density(standardDensity),
 	restDensity(standardRestDensity),
-	pressure(standardPressure) {
+	pressure(standardPressure),
+	hashOctree(standardHash) {
 }
 
 Particle::Particle(const glm::vec3& position, const glm::vec3& velocity) :
@@ -35,7 +38,8 @@ Particle::Particle(const glm::vec3& position, const glm::vec3& velocity) :
 	mass(standardMass),
 	density(standardDensity),
 	restDensity(standardRestDensity),
-	pressure(standardPressure) {
+	pressure(standardPressure),
+	hashOctree(standardHash) {
 }
 
 Particle::Particle(const glm::vec3& position, const glm::vec3& velocity, float mass) :
@@ -45,7 +49,8 @@ Particle::Particle(const glm::vec3& position, const glm::vec3& velocity, float m
 	mass(mass),
 	density(standardDensity),
 	restDensity(standardRestDensity),
-	pressure(standardPressure) {
+	pressure(standardPressure),
+	hashOctree(standardHash) {
 }
 
 Particle::Particle(const glm::vec3& position, const glm::vec3& velocity, float mass, float restDensity) :
@@ -55,5 +60,6 @@ Particle::Particle(const glm::vec3& position, const glm::vec3& velocity, float m
 	mass(mass),
 	density(standardDensity),
 	restDensity(restDensity),
-	pressure(standardPressure) {
+	pressure(standardPressure),
+	hashOctree(standardHash) {
 }

@@ -81,18 +81,25 @@
     <ClCompile Include="kernels.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="particle.cpp" />
+    <ClCompile Include="sphere.cpp" />
     <ClCompile Include="util.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="shaders\shader.frag" />
-    <None Include="shaders\shader.vert" />
+    <None Include="shaders\basicShader.frag" />
+    <None Include="shaders\basicShader.vert" />
+    <None Include="shaders\blockShader.frag" />
+    <None Include="shaders\blockShader.vert" />
+    <None Include="shaders\splatShader.frag" />
+    <None Include="shaders\splatShader.vert" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="body.h" />
     <ClInclude Include="boundingbox.h" />
     <ClInclude Include="fluidsimulator.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="kernels.h" />
     <ClInclude Include="particle.h" />
+    <ClInclude Include="sphere.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

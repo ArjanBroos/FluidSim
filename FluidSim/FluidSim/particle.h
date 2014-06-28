@@ -19,4 +19,5 @@ public:
 	float		restDensity;
 	float		pressure;
 	int			hashOctree;
+	bool		collision;
 };

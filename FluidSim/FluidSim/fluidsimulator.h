@@ -1,6 +1,8 @@
 #pragma once
 
 #include "particle.h"
+#include "Body.h"
+#include "Sphere.h"
 #include <vector>
 #include "boundingbox.h"
 #include <iostream>
@@ -15,7 +17,12 @@ public:
 	void AddParticle(Particle* particle);
 	void AddParticles(const std::vector<Particle*>& particles);
 
-	void ToggleGravity();
+	// This class takes ownership of the body pointers and will be the one to destroy them
+	void AddBody(Body* body);
+	void AddBodies(const std::vector<Body*>& bodies);
+
+	void ToggleFluidGravity();
+	void ToggleBodyGravity();
 	void ToggleWind();
 	void ToggleSurfaceTension();
 	void ToggleUseOctree();
@@ -27,11 +34,16 @@ public:
 	void Clear();
 
 	std::vector<Particle*>&	GetParticles();
+	std::vector<Body*>&	GetBodies();
+	AABoundingBox& GetBoundingBox() { return boundingBox; }
+	Body* movingBody;
 
 	bool isWind();
 	bool isGravity();
 	bool isSurfaceTension();
 	bool isUseOctree();
+
+	//AABoundingBox			box;
 
 private:
 	void		CalculateDensities();
@@ -55,6 +67,10 @@ private:
 	AABoundingBox			boundingBox;	// The bounding box in which the particles should reside
 	std::vector<Particle*>	particles;		// These particles represent the fluid
 	bool					gravity;		// True if gravity force is to be applied
+	std::vector<Body*>		bodies;			// The bodies in the simulation
+	bool					fluidgravity;	// True if gravity force is to be applied on the fluid
+	bool					bodygravity;	// True if gravity force is to be applied on the bodies
+	std::vector<std::vector<Particle*>>	octree; // octree for detecting particles close to one another
 	bool					wind;			// True if wind force is to be applied
 	bool					surfaceTension;	// True if surface tension force is to be applied
 	

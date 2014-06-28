@@ -20,11 +20,6 @@ glm::vec3 Sphere::GetVelocity(){
 	return velocity; 
 }
 
-glm::vec3 Sphere::ContactNormal(){
-	return glm::vec3(0.f, 0.f, 0.f);
-}
-
-
 bool Sphere::collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
 	glm::vec3 pos = position - center;
 	float A = displacement[0] * displacement[0] + displacement[1] * displacement[1] + displacement[2] * displacement[2];
@@ -32,9 +27,6 @@ bool Sphere::collision(const glm::vec3& position, const glm::vec3& displacement,
 	float C = pos[0] * pos[0] + pos[1] * pos[1] + pos[2] * pos[2] - (size*size);
 	float D = B*B - 4 * A * C;
 	if (D<=0||A==0){
-		if (A==0){
-			printf("%d\n", rand());
-		}
 		return false;
 	}
 	float ans1 = (-B + sqrt(D)) / (2 * A);

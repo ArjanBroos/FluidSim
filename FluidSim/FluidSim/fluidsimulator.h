@@ -74,8 +74,7 @@ private:
 	std::vector<std::vector<Particle*>>	octree; // octree for detecting particles close to one another
 	bool					wind;			// True if wind force is to be applied
 	bool					surfaceTension;	// True if surface tension force is to be applied
-	
-	std::vector< std::vector< Particle* > >	octree; // octree for detecting particles close to one another
+
 	int						d1,d2,d3;		// dimensions of octree (including extra (empty) space on each side)
 	float						c1,c2,c3;		// dimensions of octree (including extra (empty) space on each side)
 	bool					useOctree;		// Use octree, else all particles are looped.

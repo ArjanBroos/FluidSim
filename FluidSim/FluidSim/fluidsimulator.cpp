@@ -32,17 +32,17 @@ void FluidSimulator::initOctree(){
 	d1 = 3 + (int)floor(abs(boundingBox.right - boundingBox.left)/h);
 	d2 = 3 + (int)floor(abs(boundingBox.top - boundingBox.bottom)/h);
 	d3 = 3 + (int)floor(abs(boundingBox.front - boundingBox.back)/h);
-	c1 = (min(boundingBox.right, boundingBox.left));
-	c2 = (min(boundingBox.top, boundingBox.bottom));
-	c3 = (min(boundingBox.front, boundingBox.back));
+	c1 = (std::min(boundingBox.right, boundingBox.left));
+	c2 = (std::min(boundingBox.top, boundingBox.bottom));
+	c3 = (std::min(boundingBox.front, boundingBox.back));
 
 	this->octree.resize(d1*d2*d3);
-	std::ostringstream os_;
-	os_ << "initoctree : " << d1 << " " << d2 << " " << d3 << " " << this->octree.size();
-	OutputDebugString(os_.str().c_str());
+	//std::ostringstream os_;
+	//os_ << "initoctree : " << d1 << " " << d2 << " " << d3 << " " << this->octree.size();
+	//OutputDebugString(os_.str().c_str());
 	//for (unsigned i=0;i<octree.size();i++)
 		//this->octree[i].resize(0);
-	OutputDebugString("initoctree : \n");
+	//OutputDebugString("initoctree : \n");
 
 	/*for (auto pi = particles.begin(); pi != particles.end(); pi++){
 
@@ -96,7 +96,7 @@ void FluidSimulator::calculateOctree(){
 		//std::cout << ""<<(*pi)->hashOctree << " - " << std::endl;
 
 		if (((*pi)->hashOctree) >= 0){
-			std::cout << (*pi)->hashOctree << std::endl;
+			//std::cout << (*pi)->hashOctree << std::endl;
 			(this->octree.at((*pi)->hashOctree)).erase(std::remove(this->octree.at((*pi)->hashOctree).begin(), this->octree.at((*pi)->hashOctree).end(), (*pi)), this->octree.at((*pi)->hashOctree).end());
 		}
 
@@ -127,7 +127,7 @@ void FluidSimulator::GetParticlesClose(Particle* pi, std::vector<Particle*>& par
 		}
 	}
 	//particles = this->particles;
-	return std::vector<Particle*>(); // TEMP FIX
+//	return std::vector<Particle*>(); // TEMP FIX
 }
 
 // This class takes ownership of the particle pointers and will be the one to destroy them

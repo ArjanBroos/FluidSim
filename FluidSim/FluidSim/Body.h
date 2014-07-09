@@ -5,7 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-// Axis aligned bounding box for the particles to stay within
+// super for rigid bodies
 class Body {
 public:
 	virtual glm::vec3 GetAngularVelocity(glm::vec3 contactpoint) = 0;

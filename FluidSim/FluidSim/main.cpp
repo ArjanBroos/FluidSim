@@ -297,9 +297,9 @@ void AddParticles() {
 }
 
 void AddBodies() {
-	fluidSimulator.AddBody(new Sphere(glm::vec3(20.f, 70.f, 20.f),20.0, 10.f));
-	fluidSimulator.AddBody(new Sphere(glm::vec3(-20.f, 70.f, -20.f), 20.0, 3.f));
-
+	fluidSimulator.AddBody(new Sphere(glm::vec3(20.f, 70.f, 20.f),20.0, 5.f));
+	fluidSimulator.AddBody(new Box(glm::vec3(-20.f, 75.f, -20.f), glm::vec3(40.f, 40.f, 40.f), 3.f));
+	//fluidSimulator.AddBody(new Box(glm::vec3(0.f, 75.f, 0.f), glm::vec3(40.f, 40.f, 40.f), 3.f));
 }
 
 // Initializes our application
@@ -406,10 +406,13 @@ void DisplayBody() {
 
 	viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
 	glm::vec3 cameraLightDir = glm::vec3(viewMatrix * glm::vec4(lightDir, 0.f));
+
 	std::vector<Body*> bodies = fluidSimulator.GetBodies();
+
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++){
-		const Sphere* sphere = (Sphere*)*bi;
-		if (sphere!=0){
+		Body* body = (Body*)*bi;
+		if (dynamic_cast<Sphere*>(body)){
+			const Sphere* sphere = (Sphere*)*bi;
 			glm::vec3 cameraPosition = glm::vec3(viewMatrix * glm::vec4(sphere->center, 1.f));
 
 			glUniform3fv(splatProgram.cameraLightDirUniform, 1, glm::value_ptr(cameraLightDir));
@@ -420,6 +423,37 @@ void DisplayBody() {
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 	}
+
+
+	glUseProgram(blockProgram.program);
+	glBindVertexArray(blockProgram.vao);
+	bool draw = true;
+	if (draw){
+		// Draw boxes
+		glUniform4f(blockProgram.diffuseUniform, 0.f, 0.f, 1.f, 1.f);
+		glUniform4f(blockProgram.ambientUniform, 0.05f, 0.05f, 0.2f, 1.f);
+		glUniform4f(blockProgram.specularUniform, 1.f, 1.f, 1.f, 1.f);
+		viewMatrix = glm::lookAt(cameraPosition, cameraLookAt, glm::vec3(0.f, 1.f, 0.f));
+		glUniformMatrix4fv(blockProgram.viewMatrixUniform, 1, GL_FALSE, glm::value_ptr(viewMatrix));
+
+		for (auto bi = bodies.begin(); bi != bodies.end(); bi++){
+			Body* body = (Body*)*bi;
+			if (dynamic_cast<Box*>(body)){
+				const Box* box = (Box*)*bi;
+				modelMatrix = glm::scale(glm::mat4(1.f), box->size);
+				modelMatrix = glm::translate(modelMatrix, box->center / box->size);
+				mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+				glUniformMatrix4fv(blockProgram.mvpMatrixUniform, 1, GL_FALSE, glm::value_ptr(mvpMatrix));
+				modelViewMatrix = viewMatrix * modelMatrix;
+				glUniformMatrix4fv(blockProgram.modelViewMatrixUniform, 1, GL_FALSE, glm::value_ptr(modelViewMatrix));
+				normalMatrix = glm::transpose(glm::inverse(modelViewMatrix));
+				glUniformMatrix4fv(blockProgram.normalMatrixUniform, 1, GL_FALSE, glm::value_ptr(normalMatrix));
+
+				glDrawElements(GL_TRIANGLES, sizeof(cubeIndices) / sizeof(GLshort), GL_UNSIGNED_SHORT, 0);
+			}
+		}
+	}
+
 	glBindVertexArray(0);
 	glUseProgram(0);
 }

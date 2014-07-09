@@ -80,7 +80,7 @@ float fps = 0.f;				// Frames per second
 void UpdateWindowTitle() {
 	std::stringstream ss;
 	ss << "FluidSim - Sim: " << simTime << "ms, Render: " << renderTime << "ms - FPS: " << floor(fps) << " wind: " << (fluidSimulator.isWind()?"Y":"N") << " gravity: " 
-		<< (fluidSimulator.isGravity()?"Y":"N") << " surface tension: " << (fluidSimulator.isSurfaceTension()?"Y":"N");
+		<< (fluidSimulator.isGravity()?"Y":"N") << " surface tension: " << (fluidSimulator.isSurfaceTension()?"Y":"N") << " octree: " << (fluidSimulator.isUseOctree()?"Y":"N");
 	glutSetWindowTitle(ss.str().c_str());
 }
 
@@ -297,9 +297,11 @@ void AddParticles() {
 }
 
 void AddBodies() {
+
 	fluidSimulator.AddBody(new Sphere(glm::vec3(20.f, 70.f, 20.f),20.0, 5.f));
 	fluidSimulator.AddBody(new Box(glm::vec3(-20.f, 75.f, -20.f), glm::vec3(40.f, 40.f, 40.f), 3.f));
-	//fluidSimulator.AddBody(new Box(glm::vec3(0.f, 75.f, 0.f), glm::vec3(40.f, 40.f, 40.f), 3.f));
+	
+
 }
 
 // Initializes our application
@@ -502,11 +504,13 @@ void keyboard(unsigned char key, int x, int y) {
 	// Toggle wind force with W key
 	if (key == 'w') { fluidSimulator.ToggleWind(); }
 
-	if (key == 'i'){ fluidSimulator.movingBody->center -= glm::vec3(0.f, 0.f, 1.f); }
-	if (key == 'k'){ fluidSimulator.movingBody->center += glm::vec3(0.f, 0.f, 1.f); }
+	if (key == 'i'){ fluidSimulator.movingBody->center += glm::vec3(0.f, 3.f, 0.f); }
+	if (key == 'k'){ fluidSimulator.movingBody->center -= glm::vec3(0.f, 3.f, 0.f); }
 
 	// Toggle surface tension force with S key
 	if (key == 's') { fluidSimulator.ToggleSurfaceTension(); }
+	// Toggle octree with O key
+	if (key == 'o') { fluidSimulator.ToggleUseOctree(); }
 	// Pause simulation with P key
 	if (key == 'p') { paused = !paused; }
 }

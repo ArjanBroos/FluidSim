@@ -76,6 +76,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="boundingbox.cpp" />
+    <ClCompile Include="box.cpp" />
     <ClCompile Include="fluidsimulator.cpp" />
     <ClCompile Include="framework.cpp" />
     <ClCompile Include="kernels.cpp" />
@@ -95,6 +96,7 @@
   <ItemGroup>
     <ClInclude Include="body.h" />
     <ClInclude Include="boundingbox.h" />
+    <ClInclude Include="box.h" />
     <ClInclude Include="fluidsimulator.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="kernels.h" />

@@ -4,6 +4,7 @@
 #include "Body.h"
 #include "Sphere.h"
 #include "Box.h"
+#include "BoxRotating.h"
 #include <vector>
 #include "boundingbox.h"
 #include <iostream>

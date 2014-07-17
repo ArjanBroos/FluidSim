@@ -17,5 +17,7 @@ public:
 	glm::vec3	center;
 	glm::vec3	velocity;
 	glm::vec3	forceAccum;		// Force accumulator
+	glm::vec3	rotation;
+	glm::vec3	omega;
 	float		mass;
 };

@@ -191,11 +191,13 @@ void FluidSimulator::ExplicitEulerStep(float dt) {
 		p->position += p->velocity * dt;
 		p->velocity += (p->forceAccum / p->mass) * dt;
 	}
+	// Update positions, rotations and velocity
 	for (auto bi = bodies.begin(); bi != bodies.end(); bi++) {
-
 		Body* b = *bi;
 		b->center += b->velocity * dt;
 		b->velocity += (b->forceAccum / b->mass) * dt;
+		b->rotation = b->rotation + b->omega *dt;
+		b->omega /= 2;
 	}
 
 }
@@ -475,7 +477,8 @@ void FluidSimulator::DetectAndRespondCollisions(float dt) {
 					particle->velocity = particle->velocity + impulse * sImpactCoefficient;
 					particle->collision = true;
 					if (bodygravity){
-						rigidBody->velocity += -impulse / rigidBody->mass;
+						rigidBody->velocity += (-impulse * sImpactCoefficient )/ rigidBody->mass;
+						rigidBody->omega -= (glm::cross(cp, (-impulse * sImpactCoefficient) / rigidBody->mass) / (glm::length(cp)*glm::length(cp)));
 					}
 				}
 			}

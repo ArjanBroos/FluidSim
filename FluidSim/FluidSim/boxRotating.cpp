@@ -34,18 +34,22 @@ glm::vec3 BoxRotating::GetVelocity(){
 bool BoxRotating::collision(const glm::vec3& position, const glm::vec3& displacement, glm::vec3& contactPoint, float& penDepth, glm::vec3& normal){
 	glm::vec3 pos = position;
 	glm::vec3 dis = displacement;
+	glm::mat4 RotationMatrix(1);
 	if (glm::length(rotation)>0){
-		glm::mat4 RotationMatrix(1);
 		RotationMatrix = glm::rotate(RotationMatrix, glm::length(rotation), glm::normalize(rotation));
-		glm::vec3 pos = glm::vec3(RotationMatrix * glm::vec4(position, 1.0));
-		glm::vec3 dis = glm::vec3(RotationMatrix * glm::vec4(displacement, 1.0));
+		glm::mat4 iRotationMatrix(1);
+		iRotationMatrix = glm::translate(iRotationMatrix, -.5f*size);
+		iRotationMatrix = glm::translate(iRotationMatrix, -center);
+		iRotationMatrix = glm::rotate(iRotationMatrix, -glm::length(rotation), glm::normalize(rotation));
+		glm::vec3 pos = glm::vec3(iRotationMatrix * glm::vec4(position, 1.0));
+		glm::vec3 dis = glm::vec3(iRotationMatrix * glm::vec4(displacement, 1.0));
 	}
 	float fLow = 0;
 	float fHi = 1;
 	int dir = -1;
 	for (int i = 0; i < 3;i++){
-		float newLow = ((center[i] - 0.5f*size[i]) - pos[i]) / (dis[i]);
-		float newHi = ((center[i] + 0.5f*size[i]) - pos[i]) / (dis[i]);
+		float newLow = ((center[i]- 0.5f*size[i]) - pos[i]) / (dis[i]);
+		float newHi = ((center[i]+ 0.5f*size[i]) - pos[i]) / (dis[i]);
 
 		if (newLow>newHi){
 			float temp = newLow;
@@ -70,14 +74,18 @@ bool BoxRotating::collision(const glm::vec3& position, const glm::vec3& displace
 
 	if (fLow<fHi && fLow<1 && fHi>0 && dir!=-1){
 		//printf("%f\t%d\n",fLow,dir);
-		contactPoint = (position + displacement*fLow) - center;
-		penDepth = glm::length(displacement*(fHi-fLow));
-		contactPoint = glm::vec3(0.f,0.f,0.f);
+		contactPoint = (pos + dis*fLow)-center;
+		printf("%f\n",glm::length(contactPoint));
+		penDepth = glm::length(dis*(fHi-fLow));
+		normal = glm::vec3(0.f,0.f,0.f);
 		if (position[dir]>center[dir]){
-			contactPoint[dir] = 1;
+			normal[dir] = 1;
 		}
 		else{
-			contactPoint[dir] = -1;
+			normal[dir] = -1;
+		}
+		if (glm::length(rotation) > 0){
+			normal = glm::vec3(RotationMatrix * glm::vec4(normal, 1.0));
 		}
 		return true;
 	}

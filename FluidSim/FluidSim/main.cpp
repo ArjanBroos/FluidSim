@@ -299,7 +299,7 @@ void AddParticles() {
 void AddBodies() {
 
 	fluidSimulator.AddBody(new Sphere(glm::vec3(20.f, 70.f, 20.f),20.0, 5.f));
-	fluidSimulator.AddBody(new BoxRotating(glm::vec3(-20.f, 75.f, -20.f), glm::vec3(40.f, 40.f, 40.f), 3.f));
+	fluidSimulator.AddBody(new BoxRotating(glm::vec3(-20.f, 75.f, -20.f), glm::vec3(40.f, 40.f, 40.f), 10.f));
 
 }
 
@@ -447,9 +447,7 @@ void DisplayBody() {
 					RotationMatrix = glm::rotate(RotationMatrix, glm::length(box->rotation), glm::normalize(box->rotation));
 					glm::mat4 iRotationMatrix(1);
 					iRotationMatrix = glm::rotate(iRotationMatrix, -glm::length(box->rotation), glm::normalize(box->rotation));
-					modelMatrix = glm::translate(modelMatrix, glm::vec3(-.5f, -.5f, -.5f));
 					modelMatrix = modelMatrix * RotationMatrix;
-					modelMatrix = glm::translate(modelMatrix, glm::vec3(iRotationMatrix * glm::vec4(.5, .5, .5, 1.0)));
 					modelMatrix = glm::translate(modelMatrix, glm::vec3(iRotationMatrix * glm::vec4(box->center / box->size, 1.0)));
 				}else{
 					modelMatrix = glm::translate(modelMatrix, box->center / box->size);
